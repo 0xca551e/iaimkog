@@ -38,9 +38,10 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
                  :b {:x 2 :y 1 :z 0}
                  :c {:x 1 :y 1 :z 0}})
   (set _G.vector (require :vector))
+  (set _G.inspect (require :inspect))
   (set _G.ball {:position {:x 1 :y 0 :z 0.5}
              :radius 0.5
-             :velocity {:x 5 :y 0 :z -1}})
+             :velocity {:x 0 :y 0 :z -1}})
   (set _G.scale 4)
   (set _G.grid-size 16)
   (set _G.tile-width 28)
@@ -61,9 +62,13 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 ; a---b
 ; |   |
 ; c---d
+;; TODO: make tris work counter-clockwise
 (fn _G.rect-tris [a b c d]
-  [{:a a :b c :c b}
-   {:a b :b c :c d}])
+  ;; [{:a a :b c :c b}
+  ;;  {:a b :b c :c d}]
+  [{:a a :b b :c c}
+   {:a b :b d :c c}]
+  )
 
 (fn _G.table-concat [t1 t2]
   (for [i 1 (# t2)]
@@ -104,7 +109,7 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
     (when (love.keyboard.isDown "lshift") (-= _G.ball.position.z d))))
 
 (fn love.update [dt]
-  (comment (_G.integrate-ball dt))
+  (_G.integrate-ball dt)
   (_G.manual-control-ball dt))
 
 (fn love.draw []
@@ -114,9 +119,13 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (_G.draw-ball)
 
   (each [_ tri (ipairs _G.tris)]
-    ;; (love.graphics.print "Find it here" 0 0)
-    (if (_G.collision-sphere-tri _G.ball tri)
-        (love.graphics.print "Collision!"))))
+    (let [collision (_G.collision-sphere-tri _G.ball tri)]
+      (when collision
+        (love.graphics.print "Collision!")
+        ;; (print (_G.inspect collision))
+        (set _G.ball.position (_G.vector.add _G.ball.position collision.mtv))
+        ;; TODO: proper velocity handling
+        (set _G.ball.velocity _G.vector.zero)))))
 
 (fn love.keypressed [_key scancode _isrepeat]
   ;; (print scancode)
@@ -204,22 +213,24 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 (comment
  (each [a b (_G.pairs-2-looped-window [ 1 2 3 ])] (print a (. b 1) (. b 2))))
 
+;; TODO: collision should work on triangles that wind counter clockwise, not clockwise
 (fn _G.collision-sphere-tri [s t]
   (let [point-in-tri (_G.collision-point-tri-barycentric s.position t)
         normal (_G.tri-normal t)
         nearest (_G.nearest-point-sphere-normal s normal)
         penetration-depth (- (_G.distance-plane-point-normal nearest normal t.a))]
     (if (and point-in-tri (> penetration-depth 0))
-        (_G.vector.scale normal penetration-depth)
-        (do
-          (var longest (- (/ 1 0)))
-          (var worst-mtv nil)
+        {:mtv (_G.vector.scale normal penetration-depth)}
+        (comment
+         (do
+           (var longest (- (/ 1 0)))
+           (var worst-mtv nil)
                                         ; TODO: i think triangles are better treated as arrays than tables
-          (each [k v (_G.pairs-2-looped-window [t.a t.b t.c])]
-            (let [mtv (_G.collision-sphere-line s v)
-                  len (_G.vector.length-sq (or (and mtv mtv.mtv) _G.vector.zero))]
-              (when (and mtv (> len longest))
-                (set longest len)
-                (set worst-mtv mtv))))
-          worst-mtv))))
+           (each [k v (_G.pairs-2-looped-window [t.a t.b t.c])]
+             (let [mtv (_G.collision-sphere-line s v)
+                   len (_G.vector.length-sq (or (and mtv mtv.mtv) _G.vector.zero))]
+               (when (and mtv (> len longest))
+                 (set longest len)
+                 (set worst-mtv mtv))))
+           worst-mtv)))))
 
