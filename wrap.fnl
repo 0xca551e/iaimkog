@@ -20,13 +20,10 @@
 while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
   (love.graphics.setDefaultFilter "nearest" "nearest")
-  (set _G.ball {:x 0
-             :y 0
-             :z 0
+  (set _G.vector (require :vector))
+  (set _G.ball {:position _G.vector.zero
              :r 5
-             :vx 1
-             :vy 0
-             :vz -1})
+             :velocity {:x 1 :y 0 :z -1}})
   (set _G.scale 4)
   (set _G.tile-bounds-width 32)
   (set _G.tile-bounds-height 16)
@@ -47,13 +44,13 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
     (love.graphics.draw _G.sprite-sheet (. _G.sprite-quads "floor") ix iy)))
 
 (fn _G.draw-ball []
-  (let [[ix iy] (_G.to-isometric (. _G.ball "x") (. _G.ball "y") (. _G.ball "z"))]
+  (let [[ix iy] (_G.to-isometric _G.ball.position.x _G.ball.position.y _G.ball.position.z)]
     (love.graphics.draw _G.sprite-sheet (. _G.sprite-quads "ball") ix iy)))
 
 (fn _G.integrate-ball [dt]
-  (+= _G.ball.x (* _G.ball.vx dt))
-  (+= _G.ball.y (* _G.ball.vy dt))
-  (+= _G.ball.z (* _G.ball.vz dt)))
+  (set _G.ball.position (-> _G.ball.velocity
+                         (_G.vector.scale dt)
+                         (_G.vector.add _G.ball.position))))
 
 (fn love.update [dt]
   (_G.integrate-ball dt))
