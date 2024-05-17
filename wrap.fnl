@@ -35,13 +35,13 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (_G.make-floor 3 3 3)
 
   (set _G.test-tri {:a {:x 1 :y 0 :z 0}
-                 :b {:x 2 :y 1 :z 0}
-                 :c {:x 1 :y 1 :z 0}})
+                    :b {:x 2 :y 1 :z 0}
+                    :c {:x 1 :y 1 :z 0}})
   (set _G.vector (require :vector))
   (set _G.inspect (require :inspect))
   (set _G.ball {:position {:x 1 :y 0 :z 0.5}
-             :radius 0.5
-             :velocity {:x 0 :y 0 :z -1}})
+                :radius 0.5
+                :velocity {:x 0 :y 0 :z -1}})
   (set _G.scale 4)
   (set _G.grid-size 16)
   (set _G.tile-width 28)
@@ -70,17 +70,12 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
    {:a b :b d :c c}]
   )
 
-(fn _G.table-concat [t1 t2]
-  (for [i 1 (# t2)]
-    (tset t1 (+ (# t1) 1) (. t2 i)))
-  t1)
-
 (fn _G.make-floor [x y z]
   (let [a {:x x :y y :z z}
         b {:x (+ x 1) :y y :z z}
         c {:x x :y (+ y 1) :z z}
         d {:x (+ x 1) :y (+ y 1) :z z}]
-    (_G.table-concat _G.tris (_G.rect-tris a b c d))
+    (lume2.concat-mut _G.tris (_G.rect-tris a b c d))
     (table.insert _G.tiles a)))
 
 (fn _G.draw-floor [x y z]
@@ -202,17 +197,6 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 (fn _G.nearest-point-sphere-normal [s n]
   (-> n (_G.vector.scale (- s.radius)) (_G.vector.add s.position)))
 
-(fn _G.pairs-2-looped-window [t]
-  (var i 0)
-  (local n (# t))
-  (fn []
-    (set i (+ i 1))
-    (if
-     (= i n) (values i [(. t i) (. t 1)])
-     (< i n) (values i [(. t i) (. t (+ 1 i))]))))
-(comment
- (each [a b (_G.pairs-2-looped-window [ 1 2 3 ])] (print a (. b 1) (. b 2))))
-
 ;; TODO: collision should work on triangles that wind counter clockwise, not clockwise
 (fn _G.collision-sphere-tri [s t]
   (let [point-in-tri (_G.collision-point-tri-barycentric s.position t)
@@ -226,7 +210,7 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
            (var longest (- (/ 1 0)))
            (var worst-mtv nil)
                                         ; TODO: i think triangles are better treated as arrays than tables
-           (each [k v (_G.pairs-2-looped-window [t.a t.b t.c])]
+           (each [k v (lume.pairs-2-looped-window [t.a t.b t.c])]
              (let [mtv (_G.collision-sphere-line s v)
                    len (_G.vector.length-sq (or (and mtv mtv.mtv) _G.vector.zero))]
                (when (and mtv (> len longest))
