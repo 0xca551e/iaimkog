@@ -31,7 +31,9 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (set _G.sprite-sheet (love.graphics.newImage "Sprite-0001.png"))
   (set _G.sprite-quads
        {:ball (love.graphics.newQuad (* _G.grid-size 2) 0 _G.grid-size _G.grid-size (_G.sprite-sheet:getDimensions))
-        :floor (love.graphics.newQuad 0 0 (* _G.grid-size 2) _G.grid-size (_G.sprite-sheet:getDimensions))}))
+        :floor (love.graphics.newQuad 0 0 (* _G.grid-size 2) _G.grid-size (_G.sprite-sheet:getDimensions))})
+  (set _G.gravity 0.15)
+  )
 
 (fn _G.to-isometric [x y z]
   (let [ix (/ (* (- x y) _G.tile-width) 2)
@@ -47,6 +49,7 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
     (love.graphics.draw _G.sprite-sheet (. _G.sprite-quads "ball") ix iy)))
 
 (fn _G.integrate-ball [dt]
+  (+= _G.ball.velocity.z (- _G.gravity))
   (set _G.ball.position (-> _G.ball.velocity
                          (_G.vector.scale dt)
                          (_G.vector.add _G.ball.position))))
