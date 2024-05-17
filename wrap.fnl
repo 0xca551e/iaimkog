@@ -23,7 +23,7 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (set _G.vector (require :vector))
   (set _G.ball {:position _G.vector.zero
              :r 5
-             :velocity {:x 1 :y 0 :z -1}})
+             :velocity {:x 5 :y 0 :z -1}})
   (set _G.scale 4)
   (set _G.grid-size 16)
   (set _G.tile-width 28)
@@ -32,8 +32,11 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (set _G.sprite-quads
        {:ball (love.graphics.newQuad (* _G.grid-size 2) 0 _G.grid-size _G.grid-size (_G.sprite-sheet:getDimensions))
         :floor (love.graphics.newQuad 0 0 (* _G.grid-size 2) _G.grid-size (_G.sprite-sheet:getDimensions))})
-  (set _G.gravity 0.15)
+  (set _G.gravity 0.2)
+  (set _G.friction 1)
   )
+      ;; velocity: body.velocity
+      ;;   |> glector.scale(1.0 /. { 1.0 +. { dt *. friction } }),
 
 (fn _G.to-isometric [x y z]
   (let [ix (/ (* (- x y) _G.tile-width) 2)
@@ -49,6 +52,8 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
     (love.graphics.draw _G.sprite-sheet (. _G.sprite-quads "ball") ix iy)))
 
 (fn _G.integrate-ball [dt]
+  (set _G.ball.velocity (-> _G.ball.velocity
+                         (_G.vector.scale (/ 1 (+ 1 (* dt _G.friction))))))
   (+= _G.ball.velocity.z (- _G.gravity))
   (set _G.ball.position (-> _G.ball.velocity
                          (_G.vector.scale dt)
