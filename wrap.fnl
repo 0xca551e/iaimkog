@@ -23,7 +23,10 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (set _G.ball {:x 0
              :y 0
              :z 0
-             :r 5})
+             :r 5
+             :vx 1
+             :vy 0
+             :vz -1})
   (set _G.scale 4)
   (set _G.tile-bounds-width 32)
   (set _G.tile-bounds-height 16)
@@ -47,8 +50,13 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (let [[ix iy] (_G.to-isometric (. _G.ball "x") (. _G.ball "y") (. _G.ball "z"))]
     (love.graphics.draw _G.sprite-sheet (. _G.sprite-quads "ball") ix iy)))
 
+(fn _G.integrate-ball [dt]
+  (+= _G.ball.x (* _G.ball.vx dt))
+  (+= _G.ball.y (* _G.ball.vy dt))
+  (+= _G.ball.z (* _G.ball.vz dt)))
+
 (fn love.update [dt]
-  )
+  (_G.integrate-ball dt))
 
 (fn love.draw []
   (love.graphics.scale _G.scale)
