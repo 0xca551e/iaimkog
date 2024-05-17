@@ -25,14 +25,13 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
              :r 5
              :velocity {:x 1 :y 0 :z -1}})
   (set _G.scale 4)
-  (set _G.tile-bounds-width 32)
-  (set _G.tile-bounds-height 16)
+  (set _G.grid-size 16)
   (set _G.tile-width 28)
   (set _G.tile-height 14)
   (set _G.sprite-sheet (love.graphics.newImage "Sprite-0001.png"))
   (set _G.sprite-quads
-       {:ball (love.graphics.newQuad _G.tile-bounds-width 0 16 16 (_G.sprite-sheet:getDimensions))
-        :floor (love.graphics.newQuad 0 0 _G.tile-bounds-width _G.tile-bounds-height (_G.sprite-sheet:getDimensions))}))
+       {:ball (love.graphics.newQuad (* _G.grid-size 2) 0 _G.grid-size _G.grid-size (_G.sprite-sheet:getDimensions))
+        :floor (love.graphics.newQuad 0 0 (* _G.grid-size 2) _G.grid-size (_G.sprite-sheet:getDimensions))}))
 
 (fn _G.to-isometric [x y z]
   (let [ix (/ (* (- x y) _G.tile-width) 2)
