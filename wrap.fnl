@@ -4,7 +4,24 @@
 (fn love.load []
   ;; start a thread listening on stdin
   (: (love.thread.newThread "require('love.event')
-while 1 do love.event.push('stdin', io.read('*line')) end") :start))
+while 1 do love.event.push('stdin', io.read('*line')) end") :start)
+
+  (love.graphics.setDefaultFilter "nearest" "nearest")
+  (set _G.scale 4)
+  (set _G.tile-width 28)
+  (set _G.tile-height 14)
+  (set _G.sprite-sheet (love.graphics.newImage "Sprite-0001.png"))
+  (set _G.sprite-quads
+       {:floor (love.graphics.newQuad 0 0 _G.tile-width _G.tile-height (_G.sprite-sheet:getDimensions))}))
+
+(fn _G.to-isometric [x y z]
+  (let [ix (/ (* (- x y) _G.tile-width) 2)
+        iy (/ (* (- (+ x y) z) _G.tile-height) 2)]
+    [ix iy]))
+
+(fn _G.draw-floor [x y z]
+  (let [[ix iy] (_G.to-isometric x y z)]
+    (love.graphics.draw _G.sprite-sheet (. _G.sprite-quads "floor") ix iy)))
 
 (var lines [])
 (fn love.handlers.stdin [line]
@@ -19,26 +36,24 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start))
         (print (if ok (fennel.view val) val)))
       (set lines []))))
 
-(set _G.font (love.graphics.newFont 32))
-(set _G.r 0)
-(set _G.color [1 1 1 1])
-(set _G.spinniness 1)
-
 (fn love.update [dt]
-  (+= _G.r (* dt _G.spinniness)))
+  )
 
 (fn love.draw []
-  (let [width (love.graphics.getWidth)
-        x (/ width 2)
-        y (/ (love.graphics.getHeight) 2)]
-    (love.graphics.origin)
-    (love.graphics.translate x y)
-    (love.graphics.rotate _G.r)
-    ;; (love.graphics.circle "fill" 0 0 5)
-    (love.graphics.setColor (unpack _G.color))
-    (love.graphics.setFont _G.font)
-    (love.graphics.printf "it's lispin time"
-                          (- x) 0 width "center")))
+  (love.graphics.scale _G.scale)
+  (_G.draw-floor 0 0 0)
+  (_G.draw-floor 1 0 0)
+  (_G.draw-floor 2 0 0)
+  (_G.draw-floor 3 0 0)
+  
+  (_G.draw-floor 3 1 0)
+  (_G.draw-floor 3 2 0)
+  (_G.draw-floor 3 3 0)
+
+  (_G.draw-floor 3 3 1)
+  (_G.draw-floor 3 3 2)
+  (_G.draw-floor 3 3 3)
+  )
 
 (fn love.keypressed [_key scancode _isrepeat]
   ;; (print scancode)
