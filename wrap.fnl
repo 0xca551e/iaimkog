@@ -20,6 +20,20 @@
 while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
   (love.graphics.setDefaultFilter "nearest" "nearest")
+  (set _G.tris [])
+  (set _G.tiles [])
+
+  (_G.make-floor 0 0 0)
+  (_G.make-floor 1 0 0)
+  (_G.make-floor 2 0 0)
+  (_G.make-floor 3 0 0)
+  (_G.make-floor 3 1 0)
+  (_G.make-floor 3 2 0)
+  (_G.make-floor 3 3 0)
+  (_G.make-floor 3 3 1)
+  (_G.make-floor 3 3 2)
+  (_G.make-floor 3 3 3)
+
   (set _G.test-tri {:a {:x 1 :y 0 :z 0}
                  :b {:x 2 :y 1 :z 0}
                  :c {:x 1 :y 1 :z 0}})
@@ -43,6 +57,26 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (let [ix (/ (* (- x y) _G.tile-width) 2)
         iy (/ (* (- (+ x y) z) _G.tile-height) 2)]
     [ix iy]))
+
+; a---b
+; |   |
+; c---d
+(fn _G.rect-tris [a b c d]
+  [{:a a :b c :c b}
+   {:a b :b c :c d}])
+
+(fn _G.table-concat [t1 t2]
+  (for [i 1 (# t2)]
+    (tset t1 (+ (# t1) 1) (. t2 i)))
+  t1)
+
+(fn _G.make-floor [x y z]
+  (let [a {:x x :y y :z z}
+        b {:x (+ x 1) :y y :z z}
+        c {:x x :y (+ y 1) :z z}
+        d {:x (+ x 1) :y (+ y 1) :z z}]
+    (_G.table-concat _G.tris (_G.rect-tris a b c d))
+    (table.insert _G.tiles a)))
 
 (fn _G.draw-floor [x y z]
   (let [[ix iy] (_G.to-isometric x y z)]
@@ -71,28 +105,18 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
 (fn love.update [dt]
   (comment (_G.integrate-ball dt))
-  (_G.manual-control-ball dt)
-  (if (_G.collision-sphere-tri _G.ball _G.test-tri)
-    (print "Collision!")
-    (print "No collision")))
+  (_G.manual-control-ball dt))
 
 (fn love.draw []
   (love.graphics.scale _G.scale)
-  (_G.draw-floor 0 0 0)
-  (_G.draw-floor 1 0 0)
-  (_G.draw-floor 2 0 0)
-  (_G.draw-floor 3 0 0)
-  
-  (_G.draw-floor 3 1 0)
-  (_G.draw-floor 3 2 0)
-  (_G.draw-floor 3 3 0)
-
-  (_G.draw-floor 3 3 1)
-  (_G.draw-floor 3 3 2)
-  (_G.draw-floor 3 3 3)
-
+  (each [_ v (ipairs _G.tiles)]
+    (_G.draw-floor v.x v.y v.z))
   (_G.draw-ball)
-  )
+
+  (each [_ tri (ipairs _G.tris)]
+    ;; (love.graphics.print "Find it here" 0 0)
+    (if (_G.collision-sphere-tri _G.ball tri)
+        (love.graphics.print "Collision!"))))
 
 (fn love.keypressed [_key scancode _isrepeat]
   ;; (print scancode)
