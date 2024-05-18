@@ -58,7 +58,7 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (set _G.inspect (require :inspect))
   (set _G.ball {:position {:x 10.5 :y -4 :z 0.5}
                 :radius 0.5
-                :velocity {:x 0 :y 6 :z -1}})
+                :velocity {:x 0 :y 8 :z 0}})
   (set _G.scale 3)
   (set _G.grid-size 16)
   (set _G.tile-width 28)
@@ -77,8 +77,9 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
                                 {:x 1 :y 0 :z 0}
                                 {:x 0 :y 1 :z -1}
                                 {:x 1 :y 1 :z -1})})
-  (set _G.gravity 0.1)
+  (set _G.gravity 0.2)
   (set _G.friction 1)
+  (set _G.elasticity 0.2)
 
   (_G.make-floor 10 -5 0)
   (_G.make-floor 10 -4 0)
@@ -184,7 +185,12 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
       (when collision
         (love.graphics.print "Collision!")
         (set _G.ball.position (_G.vector.add _G.ball.position collision.mtv))
-        (set _G.ball.velocity (_G.vector-reflect _G.ball.velocity (_G.tri-normal tri)))))))
+        (set _G.ball.velocity (_G.vector-reflect _G.ball.velocity (_G.tri-normal tri)))
+        (let [n (_G.tri-normal tri)
+              d (_G.vector.dot _G.ball.velocity n)
+              projected (_G.vector.scale n d)
+              to-subtract (_G.vector.scale projected _G.elasticity)]
+          (set _G.ball.velocity (_G.vector.subtract _G.ball.velocity to-subtract)))))))
 
 (fn love.keypressed [_key scancode _isrepeat]
   ;; (print scancode)
@@ -269,15 +275,15 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
         penetration-depth (- (_G.distance-plane-point-normal nearest normal t.a))]
     (if (and point-in-tri (> penetration-depth 0))
         {:mtv (_G.vector.scale normal penetration-depth)}
-        (comment
+        (comment 
          (do
            (var longest (- (/ 1 0)))
            (var worst-mtv nil)
                                         ; TODO: i think triangles are better treated as arrays than tables
-           (each [k v (lume.pairs-2-looped-window [t.a t.b t.c])]
+           (each [k v (lume2.pairs-2-looped-window [t.a t.b t.c])]
              (let [mtv (_G.collision-sphere-line s v)
                    len (_G.vector.length-sq (or (and mtv mtv.mtv) _G.vector.zero))]
                (when (and mtv (> len longest))
                  (set longest len)
                  (set worst-mtv mtv))))
-           worst-mtv)))))
+           (and worst-mtv worst-mtv.mtv {:mtv _G.worst-mtv.mtv}))))))
