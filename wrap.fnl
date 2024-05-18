@@ -10,14 +10,6 @@
  (_G.project-point-plane {:x 3 :y 3 :z 100} {:x 0 :y 0 :z 1} {:x 0 :y 0 :z 0})
  (_G.project-point-plane {:x 3 :y 3 :z -100} {:x 0 :y 0 :z 1} {:x 0 :y 0 :z 0}))
 
-(fn _G.vector-reflect [v n]
-  (let [d (_G.vector.dot v n)
-        projected-vector (_G.vector.scale n d)
-        +2pv (_G.vector.scale projected-vector 2)]
-    (_G.vector.subtract v +2pv)))
-(comment
- (_G.vector-reflect {:x -3 :y 3 :z -1} {:x 0 :y 0 :z 1}))
-
 (fn _G.translate-tri [tri d]
   {:a (_G.vector.add tri.a d)
    :b (_G.vector.add tri.b d)
@@ -74,9 +66,9 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
                              {:x 0 :y 1 :z 0}
                              {:x 1 :y 1 :z 0})
         :slope-dl (_G.rect-tris _G.vector.zero
-                                {:x 1 :y 0 :z 0}
-                                {:x 0 :y 1 :z -1}
-                                {:x 1 :y 1 :z -1})})
+                             {:x 1 :y 0 :z (- 0 0.01)}
+                             {:x 0 :y 1 :z (- -1 0.01)}
+                             {:x 1 :y 1 :z (- -1 0.01)})})
   (set _G.gravity 0.2)
   (set _G.friction 1)
   (set _G.elasticity 0.2)
@@ -185,7 +177,7 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
       (when collision
         (love.graphics.print "Collision!")
         (set _G.ball.position (_G.vector.add _G.ball.position collision.mtv))
-        (set _G.ball.velocity (_G.vector-reflect _G.ball.velocity (_G.tri-normal tri)))
+        (set _G.ball.velocity (_G.vector.reflect _G.ball.velocity (_G.tri-normal tri)))
         (let [n (_G.tri-normal tri)
               d (_G.vector.dot _G.ball.velocity n)
               projected (_G.vector.scale n d)
@@ -275,15 +267,19 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
         penetration-depth (- (_G.distance-plane-point-normal nearest normal t.a))]
     (if (and point-in-tri (> penetration-depth 0))
         {:mtv (_G.vector.scale normal penetration-depth)}
-        (comment 
-         (do
-           (var longest (- (/ 1 0)))
-           (var worst-mtv nil)
+        (do
+          (var longest (- (/ 1 0)))
+          (var worst-mtv nil)
                                         ; TODO: i think triangles are better treated as arrays than tables
-           (each [k v (lume2.pairs-2-looped-window [t.a t.b t.c])]
-             (let [mtv (_G.collision-sphere-line s v)
-                   len (_G.vector.length-sq (or (and mtv mtv.mtv) _G.vector.zero))]
-               (when (and mtv (> len longest))
-                 (set longest len)
-                 (set worst-mtv mtv))))
-           (and worst-mtv worst-mtv.mtv {:mtv _G.worst-mtv.mtv}))))))
+          (each [k v (lume2.pairs-2-looped-window [t.a t.b t.c])]
+            (let [mtv (_G.collision-sphere-line s v)
+                  len (_G.vector.length-sq (or (and mtv mtv.mtv) _G.vector.zero))]
+              (when (and mtv (> len longest))
+                (set longest len)
+                (set worst-mtv mtv))))
+          (when worst-mtv
+            (comment 
+             (and worst-mtv worst-mtv.mtv {:mtv _G.worst-mtv.mtv}))
+            (love.graphics.print (_G.inspect worst-mtv.mtv) 10 100
+                                 )
+            {:mtv (_G.vector.invert worst-mtv.mtv)})))))
