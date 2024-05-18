@@ -1,6 +1,23 @@
 (require-macros :macros)
 ;; (require :util)
 
+(fn _G.project-point-plane [p n o]
+  (let [d (_G.distance-plane-point-normal p n o)]
+    (-> n
+        (_G.vector.scale (- d))
+        (_G.vector.add p))))
+(comment
+ (_G.project-point-plane {:x 3 :y 3 :z 100} {:x 0 :y 0 :z 1} {:x 0 :y 0 :z 0})
+ (_G.project-point-plane {:x 3 :y 3 :z -100} {:x 0 :y 0 :z 1} {:x 0 :y 0 :z 0}))
+
+(fn _G.vector-reflect [v n]
+  (let [d (_G.vector.dot v n)
+        projected-vector (_G.vector.scale n d)
+        +2pv (_G.vector.scale projected-vector 2)]
+    (_G.vector.subtract v +2pv)))
+(comment
+ (_G.vector-reflect {:x -3 :y 3 :z -1} {:x 0 :y 0 :z 1}))
+
 (var lines [])
 (fn love.handlers.stdin [line]
   ;; evaluate lines read from stdin as fennel code
@@ -27,6 +44,7 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (_G.make-floor 1 0 0)
   (_G.make-floor 2 0 0)
   (_G.make-floor 3 0 0)
+  (_G.make-floor 4 0 -4)
   (_G.make-floor 3 1 0)
   (_G.make-floor 3 2 0)
   (_G.make-floor 3 3 0)
@@ -117,10 +135,8 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
     (let [collision (_G.collision-sphere-tri _G.ball tri)]
       (when collision
         (love.graphics.print "Collision!")
-        ;; (print (_G.inspect collision))
         (set _G.ball.position (_G.vector.add _G.ball.position collision.mtv))
-        ;; TODO: proper velocity handling
-        (set _G.ball.velocity _G.vector.zero)))))
+        (set _G.ball.velocity (_G.vector-reflect _G.ball.velocity (_G.tri-normal tri)))))))
 
 (fn love.keypressed [_key scancode _isrepeat]
   ;; (print scancode)
@@ -217,4 +233,3 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
                  (set longest len)
                  (set worst-mtv mtv))))
            worst-mtv)))))
-
