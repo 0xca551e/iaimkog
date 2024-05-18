@@ -18,6 +18,16 @@
 (comment
  (_G.vector-reflect {:x -3 :y 3 :z -1} {:x 0 :y 0 :z 1}))
 
+(fn _G.translate-tri [tri d]
+  {:a (_G.vector.add tri.a d)
+   :b (_G.vector.add tri.b d)
+   :c (_G.vector.add tri.c d)})
+(comment
+ (_G.translate-tri {:a {:x 0 :y 0 :z 0}
+                 :b {:x 0 :y 1 :z 0}
+                 :c {:x 1 :y 0 :z 0}}
+                {:x 2 :y 2 :z 2}))
+
 (var lines [])
 (fn love.handlers.stdin [line]
   ;; evaluate lines read from stdin as fennel code
@@ -40,18 +50,6 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (set _G.tris [])
   (set _G.tiles [])
 
-  (_G.make-floor 0 0 0)
-  (_G.make-floor 1 0 0)
-  (_G.make-floor 2 0 0)
-  (_G.make-floor 3 0 0)
-  (_G.make-floor 4 0 -4)
-  (_G.make-floor 3 1 0)
-  (_G.make-floor 3 2 0)
-  (_G.make-floor 3 3 0)
-  (_G.make-floor 3 3 1)
-  (_G.make-floor 3 3 2)
-  (_G.make-floor 3 3 3)
-
   (set _G.test-tri {:a {:x 1 :y 0 :z 0}
                     :b {:x 2 :y 1 :z 0}
                     :c {:x 1 :y 1 :z 0}})
@@ -68,18 +66,31 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (set _G.sprite-quads
        {:ball (love.graphics.newQuad (* _G.grid-size 2) 0 _G.grid-size _G.grid-size (_G.sprite-sheet:getDimensions))
         :floor (love.graphics.newQuad 0 0 (* _G.grid-size 2) _G.grid-size (_G.sprite-sheet:getDimensions))})
+  (set _G.tile-hitboxes
+       {:floor (_G.rect-tris _G.vector.zero {:x 1 :y 0 :z 0} {:x 0 :y 1 :z 0} {:x 1 :y 1 :z 0})})
   (set _G.gravity 0.2)
   (set _G.friction 1)
+
+  (_G.make-floor 0 0 0)
+  (_G.make-floor 1 0 0)
+  (_G.make-floor 2 0 0)
+  (_G.make-floor 3 0 0)
+  (_G.make-floor 4 0 -4)
+  (_G.make-floor 3 1 0)
+  (_G.make-floor 3 2 0)
+  (_G.make-floor 3 3 0)
+  (_G.make-floor 3 3 1)
+  (_G.make-floor 3 3 2)
+  (_G.make-floor 3 3 3)
   )
 
 (fn _G.to-isometric [x y z]
   (let [ix (/ (* (- x y) _G.tile-width) 2)
         iy (/ (* (- (+ x y) z) _G.tile-height) 2)]
     [ix iy]))
-
-; a---b
-; |   |
-; c---d
+                                        ; a---b
+                                        ; |   |
+                                        ; c---d
 ;; TODO: make tris work counter-clockwise
 (fn _G.rect-tris [a b c d]
   ;; [{:a a :b c :c b}
@@ -89,12 +100,11 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   )
 
 (fn _G.make-floor [x y z]
-  (let [a {:x x :y y :z z}
-        b {:x (+ x 1) :y y :z z}
-        c {:x x :y (+ y 1) :z z}
-        d {:x (+ x 1) :y (+ y 1) :z z}]
-    (lume2.concat-mut _G.tris (_G.rect-tris a b c d))
-    (table.insert _G.tiles a)))
+  (lume2.concat-mut _G.tris
+                    (lume.map _G.tile-hitboxes.floor
+                              (fn [tri]
+                                (_G.translate-tri tri {:x x :y y :z z}))))
+  (table.insert _G.tiles {:x x :y y :z z}))
 
 (fn _G.draw-floor [x y z]
   (let [[ix iy] (_G.to-isometric x y z)]
