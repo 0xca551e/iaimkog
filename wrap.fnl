@@ -1,10 +1,12 @@
 (require-macros :macros)
-;; (require :util)
+
+(local vector (require :vector))
+(local physics (require :physics))
 
 (fn _G.translate-tri [tri d]
-  {:a (_G.vector.add tri.a d)
-   :b (_G.vector.add tri.b d)
-   :c (_G.vector.add tri.c d)})
+  {:a (vector.add tri.a d)
+   :b (vector.add tri.b d)
+   :c (vector.add tri.c d)})
 (comment
  (_G.translate-tri {:a {:x 0 :y 0 :z 0}
                  :b {:x 0 :y 1 :z 0}
@@ -16,8 +18,8 @@
   ;; evaluate lines read from stdin as fennel code
   ;; note: for multi-line evaluating, we must not evaluate until the statement is complete.
   ;; we mark the end of a statement with a semicolon (for now, i'm too lazy to count brackets)
-  (let [is-end-statement (line:match ";%s*$")
-        formatted-line (line:gsub ";%s*$" "")]
+  (let [is-end-statement (line:match ";END%s*$")
+        formatted-line (line:gsub ";END%s*$" "")]
     (table.insert lines formatted-line)
     (when is-end-statement
       (let [(ok val) (pcall fennel.eval (.. "(require-macros :macros)\n" (table.concat lines "\n")))]
@@ -37,9 +39,6 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (set _G.test-tri {:a {:x 1 :y 0 :z 0}
                  :b {:x 2 :y 1 :z 0}
                  :c {:x 1 :y 1 :z 0}})
-  (set _G.vector (require :vector))
-  (set _G.inspect (require :inspect))
-  (set _G.physics (require :physics))
   (set _G.ball {:position {:x 10.5 :y -4 :z 0.5}
                 :radius 0.5
                 :velocity {:x 0 :y 8 :z 0}})
@@ -53,11 +52,11 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
         :floor (love.graphics.newQuad 0 0 (* _G.grid-size 2) _G.grid-size (_G.sprite-sheet:getDimensions))
         :slope-dl (love.graphics.newQuad 48 0 32 24 (_G.sprite-sheet:getDimensions))})
   (set _G.tile-hitboxes
-       {:floor (_G.rect-tris _G.vector.zero
+       {:floor (_G.rect-tris vector.zero
                              {:x 1 :y 0 :z 0}
                              {:x 0 :y 1 :z 0}
                              {:x 1 :y 1 :z 0})
-        :slope-dl (_G.rect-tris _G.vector.zero
+        :slope-dl (_G.rect-tris vector.zero
                              {:x 1 :y 0 :z (- 0 0.01)}
                              {:x 0 :y 1 :z (- -1 0.01)}
                              {:x 1 :y 1 :z (- -1 0.01)})})
@@ -137,11 +136,11 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
 (fn _G.integrate-ball [dt]
   (set _G.ball.velocity (-> _G.ball.velocity
-                         (_G.vector.scale (/ 1 (+ 1 (* dt _G.friction))))))
+                         (vector.scale (/ 1 (+ 1 (* dt _G.friction))))))
   (+= _G.ball.velocity.z (- _G.gravity))
   (set _G.ball.position (-> _G.ball.velocity
-                         (_G.vector.scale dt)
-                         (_G.vector.add _G.ball.position))))
+                         (vector.scale dt)
+                         (vector.add _G.ball.position))))
 
 (fn _G.manual-control-ball [dt]
   (let [d (* 25 dt)]
@@ -165,16 +164,16 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (_G.draw-ball)
 
   (each [_ tri (ipairs _G.tris)]
-    (let [collision (_G.physics.collision-sphere-tri _G.ball tri)]
+    (let [collision (physics.collision-sphere-tri _G.ball tri)]
       (when collision
         (love.graphics.print "Collision!")
-        (set _G.ball.position (_G.vector.add _G.ball.position collision.mtv))
-        (set _G.ball.velocity (_G.vector.reflect _G.ball.velocity (_G.physics.tri-normal tri)))
-        (let [n (_G.physics.tri-normal tri)
-              d (_G.vector.dot _G.ball.velocity n)
-              projected (_G.vector.scale n d)
-              to-subtract (_G.vector.scale projected _G.elasticity)]
-          (set _G.ball.velocity (_G.vector.subtract _G.ball.velocity to-subtract)))))))
+        (set _G.ball.position (vector.add _G.ball.position collision.mtv))
+        (set _G.ball.velocity (vector.reflect _G.ball.velocity (physics.tri-normal tri)))
+        (let [n (physics.tri-normal tri)
+              d (vector.dot _G.ball.velocity n)
+              projected (vector.scale n d)
+              to-subtract (vector.scale projected _G.elasticity)]
+          (set _G.ball.velocity (vector.subtract _G.ball.velocity to-subtract)))))))
 
 (fn love.keypressed [_key scancode _isrepeat]
   ;; (print scancode)

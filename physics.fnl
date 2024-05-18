@@ -1,7 +1,10 @@
 (require-macros :macros)
-(require :vector)
+
+(local vector (require :vector))
+(local inspect (require :inspect))
                                         ; (fn collision-sphere-sphere [a b]
                                         ;   (todo))
+
 (local physics {})
 
 (fn collision-sphere-point [s p]
@@ -71,7 +74,7 @@
 (fn nearest-point-sphere-normal [s n]
   (-> n (vector.scale (- s.radius)) (vector.add s.position)))
 
-;; TODO: collision should work on triangles that wind counter clockwise, not clockwise
+;; Todo: collision should work on triangles that wind counter clockwise, not clockwise
 (fn collision-sphere-tri [s t]
   (let [point-in-tri (collision-point-tri-barycentric s.position t)
         normal (tri-normal t)
@@ -92,9 +95,13 @@
           (when worst-mtv
             (comment 
              (and worst-mtv worst-mtv.mtv {:mtv worst-mtv.mtv}))
-            (love.graphics.print (inspect worst-mtv.mtv) 10 100
-                                 )
+            
+            ;; (love.graphics.print (inspect worst-mtv.mtv) 10 100
+            ;;                      )
             {:mtv (vector.invert worst-mtv.mtv)})))))
 
+(print "Hello")
+
 {:collision-sphere-tri collision-sphere-tri
-:tri-normal tri-normal}
+ :tri-normal tri-normal}
+
