@@ -34,7 +34,11 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
   (love.graphics.setDefaultFilter "nearest" "nearest")
   (set _G.paused true)
+
   (set _G.tris [])
+  (set _G.edges [])
+  (set _G.verts [])
+
   (set _G.tiles [])
   (set _G.slopes-dl [])
 
@@ -43,7 +47,7 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
                     :c {:x 1 :y 1 :z 0}})
   (set _G.ball {:position {:x 10.5 :y -4 :z 0.5}
                 :radius 0.5
-                :velocity {:x 0 :y 8 :z 0}})
+                :velocity {:x 0 :y 2 :z 0}})
   (set _G.scale 3)
   (set _G.grid-size 16)
   (set _G.tile-width 28)
@@ -111,19 +115,41 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
    {:a b :b d :c c}]
   )
 
+(fn _G.flatten [t]
+  (lume.concat (unpack t)))
+
+(fn _G.generate-hitboxes [hitbox-tris x y z]
+  [(-> hitbox-tris
+       (lume.map (fn [tri]
+                   (_G.translate-tri tri {:x x :y y :z z}))))
+   (-> hitbox-tris
+       ;; (_G.values)
+       (lume.map (fn [tri]
+                   (let [translated (_G.translate-tri tri {:x x :y y :z z})]
+                     [[translated.a translated.b]
+                      [translated.b translated.c]
+                      [translated.c translated.a]])))
+       (_G.flatten))
+   (-> hitbox-tris
+       ;; (_G.values)
+       (lume.map (fn [tri]
+                   (let [translated (_G.translate-tri tri {:x x :y y :z z})]
+                     [translated.a translated.b translated.c])))
+       (_G.flatten))])
+
 (fn _G.make-floor [x y z]
-  (lume2.concat-mut _G.tris
-                    (lume.map _G.tile-hitboxes.floor
-                              (fn [tri]
-                                (_G.translate-tri tri {:x x :y y :z z}))))
-  (table.insert _G.tiles {:x x :y y :z z}))
+  (table.insert _G.tiles {:x x :y y :z z})
+  (let [[tris edges verts] (_G.generate-hitboxes _G.tile-hitboxes.floor x y z)]
+    (lume2.concat-mut _G.tris tris)
+    (lume2.concat-mut _G.edges edges)
+    (lume2.concat-mut _G.verts verts)))
 
 (fn _G.make-slope [x y z]
-  (lume2.concat-mut _G.tris
-                    (lume.map _G.tile-hitboxes.slope-dl
-                              (fn [tri]
-                                (_G.translate-tri tri {:x x :y y :z z}))))
-  (table.insert _G.slopes-dl {:x x :y y :z z}))
+  (table.insert _G.slopes-dl {:x x :y y :z z})
+  (let [[tris edges verts] (_G.generate-hitboxes _G.tile-hitboxes.slope-dl x y z)]
+    (lume2.concat-mut _G.tris tris)
+    (lume2.concat-mut _G.edges edges)
+    (lume2.concat-mut _G.verts verts)))
 
 (fn _G.draw-floor [x y z]
   (let [[ix iy] (_G.to-isometric x y z)]
@@ -169,7 +195,6 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 ;;  (_G.project-point-plane {:x 3 :y 3 :z 100} {:x 0 :y 0 :z 1} {:x 0 :y 0 :z 0})
 ;;  (_G.project-point-plane {:x 3 :y 3 :z -100} {:x 0 :y 0 :z 1} {:x 0 :y 0 :z 0}))
 
-
 (fn love.draw []
   (love.graphics.scale _G.scale)
   (each [_ v (ipairs _G.tiles)]
@@ -182,10 +207,7 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
     (let [collision (physics.collision-sphere-tri _G.ball tri)]
       (when collision
         (love.graphics.print "Collision!")
-        (set _G.ball.position (vector.add _G.ball.position collision.mtv))
         (let [
-              ;; dot the velocity vector along the normal'
-              ;; when you scale the normal with the dot product, you get the perpendicular component.
               n (vector.normalize collision.mtv)
               d (vector.dot _G.ball.velocity n)
               perpendicular-component (vector.scale n d)
@@ -193,20 +215,38 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
               response (vector.add
                         parallel-component
                         (vector.scale perpendicular-component (- _G.elasticity)))]
-          ;; (love.graphics.print (inspect n) 10 100)
-          ;; (love.graphics.print (inspect d) 10 80)
-          (set _G.ball.velocity response)
-          (set _G.last-mtv collision.mtv))
-        ;; (set _G.ball.velocity vector.zero)
-        ;; (set _G.ball.velocity (vector.reflect _G.ball.velocity (physics.tri-normal tri)))
-        (comment
-         (let [n (-> collision.mtv (vector.normalize) (vector.invert))
-               d (vector.dot _G.ball.velocity n)
-               projected (vector.scale n d)
-               to-subtract (vector.scale projected _G.elasticity)]
-           (set _G.ball.velocity (vector.subtract _G.ball.velocity to-subtract)))))))
+          (set _G.ball.position (vector.add _G.ball.position collision.mtv))
+          (set _G.ball.velocity response)))))
 
-  (love.graphics.print (inspect _G.last-mtv) 10 100)
+  (each [_ edge (ipairs _G.edges)]
+    (let [collision (physics.collision-sphere-line _G.ball edge)]
+      (when collision
+        (love.graphics.print "Collision (Edge)!")
+        (let [
+              n (vector.normalize collision.mtv)
+              d (vector.dot _G.ball.velocity n)
+              perpendicular-component (vector.scale n d)
+              parallel-component (vector.subtract _G.ball.velocity perpendicular-component)
+              response (vector.add
+                        parallel-component
+                        (vector.scale perpendicular-component (- _G.elasticity)))]
+          (set _G.ball.position (vector.add _G.ball.position collision.mtv))
+          (set _G.ball.velocity response)))))
+
+  (each [_ vert (ipairs _G.verts)]
+    (let [collision (physics.collision-sphere-point _G.ball vert)]
+      (when collision
+        (love.graphics.print "Collision (Vert)!")
+        (let [
+              n (vector.normalize collision.mtv)
+              d (vector.dot _G.ball.velocity n)
+              perpendicular-component (vector.scale n d)
+              parallel-component (vector.subtract _G.ball.velocity perpendicular-component)
+              response (vector.add
+                        parallel-component
+                        (vector.scale perpendicular-component (- _G.elasticity)))]
+          (set _G.ball.position (vector.add _G.ball.position collision.mtv))
+          (set _G.ball.velocity response)))))
   )
 
 (fn love.keypressed [_key scancode _isrepeat]

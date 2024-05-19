@@ -13,8 +13,8 @@
         len (vector.length direction)
         penetration-depth (- s.radius len)]
     (if (> penetration-depth 0)
-        {:mtv (-> normal (vector.scale penetration-depth))
-         :contact (-> normal (vector.scale s.radius))}
+        {:mtv (-> normal (vector.scale (- penetration-depth)))
+         :contact (-> normal (vector.scale (- s.radius)))}
         nil)))
 
 (fn point-lies-between [p a b]
@@ -32,17 +32,13 @@
 (fn collision-sphere-line [s l]
   (let [closest-point (project-point-line-segment s.position (. l 1) (. l 2))]
     (if (point-lies-between closest-point (. l 1) (. l 2))
-      (collision-sphere-point s closest-point)
-      (do
-        (var longest (- (/ 1 0)))
-        (var worst-mtv nil)
-        (each [k v (ipairs l)]
-          (let [mtv (collision-sphere-point s v)
-                len (vector.length-sq (or (and mtv mtv.mtv) vector.zero))]
-            (when (and mtv (> len longest))
-              (set longest len)
-              (set worst-mtv mtv))))
-        worst-mtv))))
+        (collision-sphere-point s closest-point))))
+(comment
+ (collision-sphere-line {:position {:x 1 :y 0 :z 1} :radius 2}
+                        {{:x 0 :y -1 :z 0} {:x 0 :y 1 :z 0}})
+ (collision-sphere-line {:position {:x 1 :y -0.5 :z 1} :radius 2}
+                                       [{:x 0 :y -1 :z 0} {:x 0 :y 1 :z 0}])
+ (collision-sphere-line {:position {:x 1 :y 0.5 :z 1} :radius 2}))
 
 (fn collision-point-tri-barycentric [p tri]
   (let [v0 (vector.subtract tri.b tri.a)
@@ -81,27 +77,10 @@
         nearest (nearest-point-sphere-normal s normal)
         penetration-depth (- (distance-plane-point-normal nearest normal t.a))]
     (if (and point-in-tri (> penetration-depth 0))
-        {:mtv (vector.scale normal penetration-depth)}
-        (do
-          (var longest (- (/ 1 0)))
-          (var worst-mtv nil)
-                                        ; TODO: i think triangles are better treated as arrays than tables
-          (each [k v (lume2.pairs-2-looped-window [t.a t.b t.c])]
-            (let [mtv (collision-sphere-line s v)
-                  len (vector.length-sq (or (and mtv mtv.mtv) vector.zero))]
-              (when (and mtv (> len longest))
-                (set longest len)
-                (set worst-mtv mtv))))
-          (when worst-mtv
-            (comment 
-             (and worst-mtv worst-mtv.mtv {:mtv worst-mtv.mtv}))
-            
-            ;; (love.graphics.print (inspect worst-mtv.mtv) 10 100
-            ;;                      )
-            {:mtv (vector.invert worst-mtv.mtv)})))))
-
-(print "Hello")
+        {:mtv (vector.scale normal penetration-depth)})))
 
 {:collision-sphere-tri collision-sphere-tri
+ :collision-sphere-line collision-sphere-line
+ :collision-sphere-point collision-sphere-point
  :tri-normal tri-normal}
 
