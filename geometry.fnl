@@ -70,7 +70,7 @@
 
 ;; note: assumes circle faces upwards
 (fn _G.geometry.make-circle-verts [center radius resolution]
-  (let [radians (-> (_G.range 0 (- resolution 1) 1)
+  (let [radians (-> (_G.util.range 0 (- resolution 1) 1)
                     (lume.map (fn [x]
                                 (-> x
                                     (* math.pi 2)

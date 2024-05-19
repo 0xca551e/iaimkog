@@ -3,11 +3,7 @@
 (require :vector)
 (require :physics)
 (require :geometry)
-
-(fn _G.concat-mut [t1 t2]
-  (for [i 1 (# t2)]
-    (tset t1 (+ (# t1) 1) (. t2 i)))
-  t1)
+(require :util)
 
 (var lines [])
 (fn love.handlers.stdin [line]
@@ -21,33 +17,6 @@
       (let [(ok val) (pcall fennel.eval (.. "(require-macros :macros)\n" (table.concat lines "\n")))]
         (print (if ok (fennel.view val) val)))
       (set lines []))))
-
-(fn _G.range [start end step]
-  (local result [])
-  (for [i start end step]
-    (table.insert result i))
-  result)
-(comment (_G.range 0 10 1))
-
-(fn debug [x]
-  (print (inspect x))
-  x)
-
-(fn window-by-2 [arr]
-  (let [result {}]
-    (for [i 1 (- (length arr) 1)]
-      (table.insert result [(. arr i) (. arr (+ i 1))]))
-    result))
-
-(fn sized-chunk [a n]
-  (let [result {}]
-    (for [i 1 (length a) n]
-      (local chunk {})
-      (for [j i (math.min (- (+ i n) 1) (length a))]
-        (table.insert chunk (. a j)))
-      (table.insert result chunk))
-    result))
-(comment (sized-chunk [1 2 3 4 5] 2))
 
 (fn tile-with-hole []
   (let [position _G.vector.zero
@@ -64,11 +33,11 @@
         square-verts [ur ul dl dr]
 
         circle-verts (_G.geometry.make-circle-verts {:x 0.5 :y 0.5 :z 0} 0.3 12)
-        circle-lines (_G.geometry.close-loop (window-by-2 circle-verts))
+        circle-lines (_G.geometry.close-loop (_G.util.window-by-2 circle-verts))
 
 
         ;; [circle-dr circle-dl circle-ul circle-ur]
-        circle-chunks (sized-chunk circle-lines 3)
+        circle-chunks (_G.util.sized-chunk circle-lines 3)
         circle-dr (. circle-chunks 1)
         circle-dl (. circle-chunks 2)
         circle-ul (. circle-chunks 3)
@@ -200,24 +169,24 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 (fn _G.make-floor [x y z]
   (table.insert _G.tiles {:x x :y y :z z})
   (let [[tris edges verts] _G.tile-hitboxes.floor]
-    (_G.concat-mut _G.tris (_G.geometry.translate-tris tris {:x x :y y :z z}))
-    (_G.concat-mut _G.edges (_G.geometry.translate-edges edges {:x x :y y :z z}))
-    (_G.concat-mut _G.verts (_G.geometry.translate-verts verts {:x x :y y :z z}))))
+    (_G._G.util.concat-mut _G.tris (_G.geometry.translate-tris tris {:x x :y y :z z}))
+    (_G._G.util.concat-mut _G.edges (_G.geometry.translate-edges edges {:x x :y y :z z}))
+    (_G._G.util.concat-mut _G.verts (_G.geometry.translate-verts verts {:x x :y y :z z}))))
 
 (fn _G.make-slope [x y z]
   (table.insert _G.slopes-dl {:x x :y y :z z})
   (let [[tris edges verts] _G.tile-hitboxes.slope-dl]
-    (_G.concat-mut _G.tris (_G.geometry.translate-tris tris {:x x :y y :z z}))
-    (_G.concat-mut _G.edges (_G.geometry.translate-edges edges {:x x :y y :z z}))
-    (_G.concat-mut _G.verts (_G.geometry.translate-verts verts {:x x :y y :z z}))))
+    (_G._G.util.concat-mut _G.tris (_G.geometry.translate-tris tris {:x x :y y :z z}))
+    (_G._G.util.concat-mut _G.edges (_G.geometry.translate-edges edges {:x x :y y :z z}))
+    (_G._G.util.concat-mut _G.verts (_G.geometry.translate-verts verts {:x x :y y :z z}))))
 
 (fn _G.make-hole [x y z]
   (table.insert _G.hole-tiles {:x x :y y :z z})
   ;; (print (inspect _G.tile-hitboxes.floor-with-hole))
   (let [[tris edges verts] _G.tile-hitboxes.floor-with-hole]
-    (_G.concat-mut _G.tris (_G.geometry.translate-tris tris {:x x :y y :z z}))
-    (_G.concat-mut _G.edges (_G.geometry.translate-edges edges {:x x :y y :z z}))
-    (_G.concat-mut _G.verts (_G.geometry.translate-verts verts {:x x :y y :z z}))))
+    (_G._G.util.concat-mut _G.tris (_G.geometry.translate-tris tris {:x x :y y :z z}))
+    (_G._G.util.concat-mut _G.edges (_G.geometry.translate-edges edges {:x x :y y :z z}))
+    (_G._G.util.concat-mut _G.verts (_G.geometry.translate-verts verts {:x x :y y :z z}))))
 
 (fn _G.draw-floor [x y z]
   (let [[ix iy] (_G.geometry.to-isometric x y z)]
