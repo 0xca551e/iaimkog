@@ -18,5 +18,5 @@ table.insert(package.loaders, make_love_searcher(_G))
 table.insert(fennel["macro-searchers"], make_love_searcher("_COMPILER"))
 
 lume = require("lume")
-lume2 = require("lume-extensions")
+inspect = require("inspect")
 require("wrap.fnl")

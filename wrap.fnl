@@ -1,14 +1,17 @@
 (require-macros :macros)
 
-(local vector (require :vector))
-(local physics (require :physics))
-(local inspect (require :inspect))
-;; (local lume (require :lume))
+(require :vector)
+(require :physics)
+
+(fn _G.concat-mut [t1 t2]
+  (for [i 1 (# t2)]
+    (tset t1 (+ (# t1) 1) (. t2 i)))
+  t1)
 
 (fn _G.translate-tri [tri d]
-  {:a (vector.add tri.a d)
-   :b (vector.add tri.b d)
-   :c (vector.add tri.c d)})
+  {:a (_G.vector.add tri.a d)
+   :b (_G.vector.add tri.b d)
+   :c (_G.vector.add tri.c d)})
 (comment
  (_G.translate-tri {:a {:x 0 :y 0 :z 0}
                  :b {:x 0 :y 1 :z 0}
@@ -19,12 +22,12 @@
   (lume.map tris (fn [x] (_G.translate-tri x d))))
 
 (fn translate-edge [edge d]
-  [(vector.add (. edge 1) d) (vector.add (. edge 2) d)])
+  [(_G.vector.add (. edge 1) d) (_G.vector.add (. edge 2) d)])
 (fn translate-edges [edges d]
   (lume.map edges (fn [x] (translate-edge x d))))
 
 (fn translate-verts [verts d]
-  (lume.map verts (fn [x] (vector.add x d))))
+  (lume.map verts (fn [x] (_G.vector.add x d))))
 
 (var lines [])
 (fn love.handlers.stdin [line]
@@ -60,8 +63,8 @@
         positions (-> radians
                       (lume.map (fn [x]
                                   (-> {:x (math.cos x) :y (math.sin x) :z 0}
-                                      (vector.scale radius)
-                                      (vector.add center)))))]
+                                      (_G.vector.scale radius)
+                                      (_G.vector.add center)))))]
     positions))
 
 (fn window-by-2 [arr]
@@ -99,8 +102,8 @@
         ;; t (print "this")
         ;; t (print a)
         b (. line (if flip 2 1))
-        c (vector.add a offset)
-        d (vector.add b offset)]
+        c (_G.vector.add a offset)
+        d (_G.vector.add b offset)]
     (_G.rect-tris a b c d)))
 
 (fn prepend-point [segment p]
@@ -110,15 +113,15 @@
   (lume.concat segment [[(lume.last (lume.last segment)) p]]))
 
 (fn tile-with-hole []
-  (let [position vector.zero
-        ur (vector.add position {:x 1 :y 0 :z 0})
+  (let [position _G.vector.zero
+        ur (_G.vector.add position {:x 1 :y 0 :z 0})
         ul position
-        dl (vector.add position {:x 0 :y 1 :z 0})
-        dr (vector.add position {:x 1 :y 1 :z 0})
-        r (vector.add position {:x 1 :y 0.5 :z 0})
-        u (vector.add position {:x 0.5 :y 0 :z 0})
-        l (vector.add position {:x 0 :y 0.5 :z 0})
-        d (vector.add position {:x 0.5 :y 1 :z 0})
+        dl (_G.vector.add position {:x 0 :y 1 :z 0})
+        dr (_G.vector.add position {:x 1 :y 1 :z 0})
+        r (_G.vector.add position {:x 1 :y 0.5 :z 0})
+        u (_G.vector.add position {:x 0.5 :y 0 :z 0})
+        l (_G.vector.add position {:x 0 :y 0.5 :z 0})
+        d (_G.vector.add position {:x 0.5 :y 1 :z 0})
 
         square-lines [[ur ul] [ul dl] [dl dr] [dr ur]]
         square-verts [ur ul dl dr]
@@ -163,7 +166,7 @@
      (lume.concat square-verts circle-verts)
      ]))
 
-(comment (tile-with-hole vector.zero))
+(comment (tile-with-hole _G.vector.zero))
 
 (fn love.load []
   ;; start a thread listening on stdin
@@ -198,15 +201,15 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
         :slope-dl (love.graphics.newQuad 48 0 32 48 (_G.sprite-sheet:getDimensions))
         :hole-tile (love.graphics.newQuad 0 32 (* _G.grid-size 2) (* _G.grid-size 2) (_G.sprite-sheet:getDimensions))})
   (set _G.tile-hitboxes
-       {:floor (_G.generate-hitboxes (_G.rect-tris vector.zero
+       {:floor (_G.generate-hitboxes (_G.rect-tris _G.vector.zero
                                                    {:x 1 :y 0 :z 0}
                                                    {:x 0 :y 1 :z 0}
                                                    {:x 1 :y 1 :z 0}))
-        :slope-dl (_G.generate-hitboxes (_G.rect-tris vector.zero
+        :slope-dl (_G.generate-hitboxes (_G.rect-tris _G.vector.zero
                                                       {:x 1 :y 0 :z 0}
                                                       {:x 0 :y 1 :z -1}
                                                       {:x 1 :y 1 :z -1}))
-        :floor-with-hole (tile-with-hole vector.zero)})
+        :floor-with-hole (tile-with-hole _G.vector.zero)})
   (set _G.gravity 0.2)
   (set _G.friction 1)
   (set _G.elasticity 0.8)
@@ -275,24 +278,24 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 (fn _G.make-floor [x y z]
   (table.insert _G.tiles {:x x :y y :z z})
   (let [[tris edges verts] _G.tile-hitboxes.floor]
-    (lume2.concat-mut _G.tris (translate-tris tris {:x x :y y :z z}))
-    (lume2.concat-mut _G.edges (translate-edges edges {:x x :y y :z z}))
-    (lume2.concat-mut _G.verts (translate-verts verts {:x x :y y :z z}))))
+    (_G.concat-mut _G.tris (translate-tris tris {:x x :y y :z z}))
+    (_G.concat-mut _G.edges (translate-edges edges {:x x :y y :z z}))
+    (_G.concat-mut _G.verts (translate-verts verts {:x x :y y :z z}))))
 
 (fn _G.make-slope [x y z]
   (table.insert _G.slopes-dl {:x x :y y :z z})
   (let [[tris edges verts] _G.tile-hitboxes.slope-dl]
-    (lume2.concat-mut _G.tris (translate-tris tris {:x x :y y :z z}))
-    (lume2.concat-mut _G.edges (translate-edges edges {:x x :y y :z z}))
-    (lume2.concat-mut _G.verts (translate-verts verts {:x x :y y :z z}))))
+    (_G.concat-mut _G.tris (translate-tris tris {:x x :y y :z z}))
+    (_G.concat-mut _G.edges (translate-edges edges {:x x :y y :z z}))
+    (_G.concat-mut _G.verts (translate-verts verts {:x x :y y :z z}))))
 
 (fn _G.make-hole [x y z]
   (table.insert _G.hole-tiles {:x x :y y :z z})
   ;; (print (inspect _G.tile-hitboxes.floor-with-hole))
   (let [[tris edges verts] _G.tile-hitboxes.floor-with-hole]
-    (lume2.concat-mut _G.tris (translate-tris tris {:x x :y y :z z}))
-    (lume2.concat-mut _G.edges (translate-edges edges {:x x :y y :z z}))
-    (lume2.concat-mut _G.verts (translate-verts verts {:x x :y y :z z}))))
+    (_G.concat-mut _G.tris (translate-tris tris {:x x :y y :z z}))
+    (_G.concat-mut _G.edges (translate-edges edges {:x x :y y :z z}))
+    (_G.concat-mut _G.verts (translate-verts verts {:x x :y y :z z}))))
 
 (fn _G.draw-floor [x y z]
   (let [[ix iy] (_G.to-isometric x y z)]
@@ -312,11 +315,11 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
 (fn _G.integrate-ball [dt]
   (set _G.ball.velocity (-> _G.ball.velocity
-                         (vector.scale (/ 1 (+ 1 (* dt _G.friction))))))
+                         (_G.vector.scale (/ 1 (+ 1 (* dt _G.friction))))))
   (+= _G.ball.velocity.z (- _G.gravity))
   (set _G.ball.position (-> _G.ball.velocity
-                         (vector.scale dt)
-                         (vector.add _G.ball.position))))
+                         (_G.vector.scale dt)
+                         (_G.vector.add _G.ball.position))))
 
 (fn _G.manual-control-ball [dt]
   (let [d (* 5 dt)
@@ -334,10 +337,10 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
     (_G.manual-control-ball dt)))
 
 ;; (fn _G.project-point-plane [p n o]
-;;   (let [d (physics.distance-plane-point-normal p n o)]
+;;   (let [d (_G.physics.distance-plane-point-normal p n o)]
 ;;     (-> n
-;;         (_G.vector.scale (- d))
-;;         (_G.vector.add p))))
+;;         (_G._G.vector.scale (- d))
+;;         (_G._G.vector.add p))))
 ;; (comment
 ;;  (_G.project-point-plane {:x 3 :y 3 :z 100} {:x 0 :y 0 :z 1} {:x 0 :y 0 :z 0})
 ;;  (_G.project-point-plane {:x 3 :y 3 :z -100} {:x 0 :y 0 :z 1} {:x 0 :y 0 :z 0}))
@@ -353,48 +356,48 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (_G.draw-ball)
 
   (each [_ tri (ipairs _G.tris)]
-    (let [collision (physics.collision-sphere-tri _G.ball tri)]
-      (when (and collision (< (vector.length collision.mtv) 0.5))
+    (let [collision (_G.physics.collision-sphere-tri _G.ball tri)]
+      (when (and collision (< (_G.vector.length collision.mtv) 0.5))
         (love.graphics.print "Collision!")
         (let [
-              n (vector.normalize collision.mtv)
-              d (vector.dot _G.ball.velocity n)
-              perpendicular-component (vector.scale n d)
-              parallel-component (vector.subtract _G.ball.velocity perpendicular-component)
-              response (vector.add
+              n (_G.vector.normalize collision.mtv)
+              d (_G.vector.dot _G.ball.velocity n)
+              perpendicular-component (_G.vector.scale n d)
+              parallel-component (_G.vector.subtract _G.ball.velocity perpendicular-component)
+              response (_G.vector.add
                         parallel-component
-                        (vector.scale perpendicular-component (- _G.elasticity)))]
-          (set _G.ball.position (vector.add _G.ball.position collision.mtv))
+                        (_G.vector.scale perpendicular-component (- _G.elasticity)))]
+          (set _G.ball.position (_G.vector.add _G.ball.position collision.mtv))
           (set _G.ball.velocity response)))))
 
   (each [_ edge (ipairs _G.edges)]
-    (let [collision (physics.collision-sphere-line _G.ball edge)]
+    (let [collision (_G.physics.collision-sphere-line _G.ball edge)]
       (when collision
         (love.graphics.print "Collision (Edge)!")
         (let [
-              n (vector.normalize collision.mtv)
-              d (vector.dot _G.ball.velocity n)
-              perpendicular-component (vector.scale n d)
-              parallel-component (vector.subtract _G.ball.velocity perpendicular-component)
-              response (vector.add
+              n (_G.vector.normalize collision.mtv)
+              d (_G.vector.dot _G.ball.velocity n)
+              perpendicular-component (_G.vector.scale n d)
+              parallel-component (_G.vector.subtract _G.ball.velocity perpendicular-component)
+              response (_G.vector.add
                         parallel-component
-                        (vector.scale perpendicular-component (- _G.elasticity)))]
-          (set _G.ball.position (vector.add _G.ball.position collision.mtv))
+                        (_G.vector.scale perpendicular-component (- _G.elasticity)))]
+          (set _G.ball.position (_G.vector.add _G.ball.position collision.mtv))
           (set _G.ball.velocity response)))))
 
   (each [_ vert (ipairs _G.verts)]
-    (let [collision (physics.collision-sphere-point _G.ball vert)]
+    (let [collision (_G.physics.collision-sphere-point _G.ball vert)]
       (when collision
         (love.graphics.print "Collision (Vert)!")
         (let [
-              n (vector.normalize collision.mtv)
-              d (vector.dot _G.ball.velocity n)
-              perpendicular-component (vector.scale n d)
-              parallel-component (vector.subtract _G.ball.velocity perpendicular-component)
-              response (vector.add
+              n (_G.vector.normalize collision.mtv)
+              d (_G.vector.dot _G.ball.velocity n)
+              perpendicular-component (_G.vector.scale n d)
+              parallel-component (_G.vector.subtract _G.ball.velocity perpendicular-component)
+              response (_G.vector.add
                         parallel-component
-                        (vector.scale perpendicular-component (- _G.elasticity)))]
-          (set _G.ball.position (vector.add _G.ball.position collision.mtv))
+                        (_G.vector.scale perpendicular-component (- _G.elasticity)))]
+          (set _G.ball.position (_G.vector.add _G.ball.position collision.mtv))
           (set _G.ball.velocity response)))))
   )
 
