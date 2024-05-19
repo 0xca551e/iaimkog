@@ -31,3 +31,6 @@
       (table.insert result chunk))
     result))
 (comment (_G.util.sized-chunk [1 2 3 4 5] 2))
+
+(fn _G.util.flatten [t]
+  (lume.concat (unpack t)))

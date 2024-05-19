@@ -4,6 +4,7 @@
 (require :physics)
 (require :geometry)
 (require :util)
+(require :level)
 
 (var lines [])
 (fn love.handlers.stdin [line]
@@ -17,62 +18,6 @@
       (let [(ok val) (pcall fennel.eval (.. "(require-macros :macros)\n" (table.concat lines "\n")))]
         (print (if ok (fennel.view val) val)))
       (set lines []))))
-
-(fn tile-with-hole []
-  (let [position _G.vector.zero
-        ur (_G.vector.add position {:x 1 :y 0 :z 0})
-        ul position
-        dl (_G.vector.add position {:x 0 :y 1 :z 0})
-        dr (_G.vector.add position {:x 1 :y 1 :z 0})
-        r (_G.vector.add position {:x 1 :y 0.5 :z 0})
-        u (_G.vector.add position {:x 0.5 :y 0 :z 0})
-        l (_G.vector.add position {:x 0 :y 0.5 :z 0})
-        d (_G.vector.add position {:x 0.5 :y 1 :z 0})
-
-        square-lines [[ur ul] [ul dl] [dl dr] [dr ur]]
-        square-verts [ur ul dl dr]
-
-        circle-verts (_G.geometry.make-circle-verts {:x 0.5 :y 0.5 :z 0} 0.3 12)
-        circle-lines (_G.geometry.close-loop (_G.util.window-by-2 circle-verts))
-
-
-        ;; [circle-dr circle-dl circle-ul circle-ur]
-        circle-chunks (_G.util.sized-chunk circle-lines 3)
-        circle-dr (. circle-chunks 1)
-        circle-dl (. circle-chunks 2)
-        circle-ul (. circle-chunks 3)
-        circle-ur (. circle-chunks 4)
-        ur-tris (_G.geometry.fan-tris ur (-> circle-ur
-                                 (_G.geometry.prepend-point u)
-                                 (_G.geometry.append-point r)))
-        ul-tris (_G.geometry.fan-tris ul (-> circle-ul
-                                 (_G.geometry.prepend-point l)
-                                 (_G.geometry.append-point u)))
-        dl-tris (_G.geometry.fan-tris dl (-> circle-dl
-                                 (_G.geometry.prepend-point d)
-                                 (_G.geometry.append-point l)))
-        dr-tris (_G.geometry.fan-tris dr (-> circle-dr
-                                 (_G.geometry.prepend-point r)
-                                 (_G.geometry.append-point d)))
-
-        hole-tris (-> circle-lines
-                      (lume.map (fn [x]
-                                  (_G.geometry.extrude-line-to-rect x {:x 0 :y 0 :z -0.5} true)))
-                      (_G.flatten))
-
-        ]
-    ;; (print (inspect (_G.flatten circle-chunks)))
-    ;; (print (inspect (lume.concat [r] circle-ur [u])))
-    ;; (print (inspect circle-dl))
-    ;; (print (inspect (lume.concat [[u (lume.first circle-ul)]]
-    ;;                              circle-ul
-    ;;                              [[l (lume.last circle-ul)]])))
-    [(lume.concat ur-tris ul-tris dl-tris dr-tris hole-tris)
-     (lume.concat square-lines circle-lines)
-     (lume.concat square-verts circle-verts)
-     ]))
-
-(comment (tile-with-hole _G.vector.zero))
 
 (fn love.load []
   ;; start a thread listening on stdin
@@ -107,102 +52,48 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
         :slope-dl (love.graphics.newQuad 48 0 32 48 (_G.sprite-sheet:getDimensions))
         :hole-tile (love.graphics.newQuad 0 32 (* _G.grid-size 2) (* _G.grid-size 2) (_G.sprite-sheet:getDimensions))})
   (set _G.tile-hitboxes
-       {:floor (_G.generate-hitboxes (_G.geometry.rect-tris _G.vector.zero
+       {:floor (_G._G.level.generate-hitboxes (_G.geometry.rect-tris _G.vector.zero
                                                    {:x 1 :y 0 :z 0}
                                                    {:x 0 :y 1 :z 0}
                                                    {:x 1 :y 1 :z 0}))
-        :slope-dl (_G.generate-hitboxes (_G.geometry.rect-tris _G.vector.zero
+        :slope-dl (_G._G.level.generate-hitboxes (_G.geometry.rect-tris _G.vector.zero
                                                       {:x 1 :y 0 :z 0}
                                                       {:x 0 :y 1 :z -1}
                                                       {:x 1 :y 1 :z -1}))
-        :floor-with-hole (tile-with-hole _G.vector.zero)})
+        :floor-with-hole (_G.level.tile-with-hole _G.vector.zero)})
   (set _G.gravity 0.2)
   (set _G.friction 1)
   (set _G.elasticity 0.8)
 
-  (_G.make-floor 10 -5 0)
-  (_G.make-floor 10 -4 0)
-  (_G.make-floor 10 -3 0)
-  (_G.make-floor 10 -2 0)
-  (_G.make-floor 10 -1 0)
-  (_G.make-floor 10 0 0)
-  (_G.make-floor 11 0 0)
-  (_G.make-floor 12 0 0)
-  (_G.make-hole 13 0 0)
-  ;; (_G.make-floor 14 0 -4)
-  ;; (_G.make-floor 13 1 -4)
-  ;; (_G.make-floor 3 1 0)
-  ;; (_G.make-floor 3 2 0)
-  ;; (_G.make-floor 3 3 0)
-  ;; (_G.make-floor 3 3 1)
-  ;; (_G.make-floor 3 3 2)
-  ;; (_G.make-floor 3 3 3)
+  (_G.level.make-floor 10 -5 0)
+  (_G.level.make-floor 10 -4 0)
+  (_G.level.make-floor 10 -3 0)
+  (_G.level.make-floor 10 -2 0)
+  (_G.level.make-floor 10 -1 0)
+  (_G.level.make-floor 10 0 0)
+  (_G.level.make-floor 11 0 0)
+  (_G.level.make-floor 12 0 0)
+  (_G.level.make-hole 13 0 0)
+  ;; (_G.level.make-floor 14 0 -4)
+  ;; (_G.level.make-floor 13 1 -4)
+  ;; (_G.level.make-floor 3 1 0)
+  ;; (_G.level.make-floor 3 2 0)
+  ;; (_G.level.make-floor 3 3 0)
+  ;; (_G.level.make-floor 3 3 1)
+  ;; (_G.level.make-floor 3 3 2)
+  ;; (_G.level.make-floor 3 3 3)
 
-  (_G.make-slope 10 1 0)
-  (_G.make-slope 10 2 -1)
-  (_G.make-slope 10 3 -2)
-  (_G.make-slope 10 4 -3)
-  (_G.make-slope 10 5 -4)
+  (_G.level.make-slope 10 1 0)
+  (_G.level.make-slope 10 2 -1)
+  (_G.level.make-slope 10 3 -2)
+  (_G.level.make-slope 10 4 -3)
+  (_G.level.make-slope 10 5 -4)
 
-  (_G.make-floor 10 6 -5)
-  (_G.make-floor 10 7 -5)
-  (_G.make-floor 10 8 -5)
-  (_G.make-floor 10 9 -5)
+  (_G.level.make-floor 10 6 -5)
+  (_G.level.make-floor 10 7 -5)
+  (_G.level.make-floor 10 8 -5)
+  (_G.level.make-floor 10 9 -5)
   )
-
-(fn _G.flatten [t]
-  (lume.concat (unpack t)))
-
-(fn _G.generate-hitboxes [hitbox-tris]
-  [hitbox-tris
-   (-> hitbox-tris
-       (lume.map (fn [tri]
-                   [[tri.a tri.b]
-                    [tri.b tri.c]
-                    [tri.c tri.a]]))
-       (_G.flatten))
-   (-> hitbox-tris
-       (lume.map (fn [tri]
-                   [tri.a tri.b tri.c]))
-       (_G.flatten))])
-
-(fn _G.make-floor [x y z]
-  (table.insert _G.tiles {:x x :y y :z z})
-  (let [[tris edges verts] _G.tile-hitboxes.floor]
-    (_G._G.util.concat-mut _G.tris (_G.geometry.translate-tris tris {:x x :y y :z z}))
-    (_G._G.util.concat-mut _G.edges (_G.geometry.translate-edges edges {:x x :y y :z z}))
-    (_G._G.util.concat-mut _G.verts (_G.geometry.translate-verts verts {:x x :y y :z z}))))
-
-(fn _G.make-slope [x y z]
-  (table.insert _G.slopes-dl {:x x :y y :z z})
-  (let [[tris edges verts] _G.tile-hitboxes.slope-dl]
-    (_G._G.util.concat-mut _G.tris (_G.geometry.translate-tris tris {:x x :y y :z z}))
-    (_G._G.util.concat-mut _G.edges (_G.geometry.translate-edges edges {:x x :y y :z z}))
-    (_G._G.util.concat-mut _G.verts (_G.geometry.translate-verts verts {:x x :y y :z z}))))
-
-(fn _G.make-hole [x y z]
-  (table.insert _G.hole-tiles {:x x :y y :z z})
-  ;; (print (inspect _G.tile-hitboxes.floor-with-hole))
-  (let [[tris edges verts] _G.tile-hitboxes.floor-with-hole]
-    (_G._G.util.concat-mut _G.tris (_G.geometry.translate-tris tris {:x x :y y :z z}))
-    (_G._G.util.concat-mut _G.edges (_G.geometry.translate-edges edges {:x x :y y :z z}))
-    (_G._G.util.concat-mut _G.verts (_G.geometry.translate-verts verts {:x x :y y :z z}))))
-
-(fn _G.draw-floor [x y z]
-  (let [[ix iy] (_G.geometry.to-isometric x y z)]
-    (love.graphics.draw _G.sprite-sheet (. _G.sprite-quads "floor") (- ix _G.grid-size) iy)))
-
-(fn _G.draw-hole [x y z]
-  (let [[ix iy] (_G.geometry.to-isometric x y z)]
-    (love.graphics.draw _G.sprite-sheet (. _G.sprite-quads "hole-tile") (- ix _G.grid-size) iy)))
-
-(fn _G.draw-slopes [x y z]
-  (let [[ix iy] (_G.geometry.to-isometric x y z)]
-    (love.graphics.draw _G.sprite-sheet (. _G.sprite-quads "slope-dl") (- ix _G.grid-size) iy)))
-
-(fn _G.draw-ball []
-  (let [[ix iy] (_G.geometry.to-isometric _G.ball.position.x _G.ball.position.y _G.ball.position.z)]
-    (love.graphics.draw _G.sprite-sheet (. _G.sprite-quads "ball") (- ix 8) (- iy 10))))
 
 (fn _G.integrate-ball [dt]
   (set _G.ball.velocity (-> _G.ball.velocity
@@ -239,12 +130,12 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 (fn love.draw []
   (love.graphics.scale _G.scale)
   (each [_ v (ipairs _G.tiles)]
-    (_G.draw-floor v.x v.y v.z))
+    (_G.level.draw-floor v.x v.y v.z))
   (each [_ v (ipairs _G.slopes-dl)]
-    (_G.draw-slopes v.x v.y v.z))
+    (_G.level.draw-slopes v.x v.y v.z))
   (each [_ v (ipairs _G.hole-tiles)]
-    (_G.draw-hole v.x v.y v.z))
-  (_G.draw-ball)
+    (_G.level.draw-hole v.x v.y v.z))
+  (_G.level.draw-ball)
 
   (each [_ tri (ipairs _G.tris)]
     (let [collision (_G.physics.collision-sphere-tri _G.ball tri)]
