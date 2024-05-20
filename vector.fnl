@@ -62,3 +62,47 @@
     (_G.vector.subtract v +2pv)))
 (comment
  (_G.vector.reflect {:x -3 :y 3 :z -1} {:x 0 :y 0 :z 1}))
+
+(fn _G.vector.rotate-by-axis-angle [vector axis angle]
+  (let [cos-angle (math.cos angle)
+        sin-angle (math.sin angle)
+        one-minus-cos-angle (- 1 cos-angle)
+        x vector.x
+        y vector.y
+        z vector.z
+        u axis.x
+        v axis.y
+        w axis.z
+        new-x (+ (+ (* (+ cos-angle
+                          (* (* u u) one-minus-cos-angle))
+                       x)
+                    (* (+ (* (* u v) one-minus-cos-angle)
+                          (* w sin-angle))
+                       y))
+                 (* (- (* (* u w) one-minus-cos-angle)
+                       (* v sin-angle))
+                    z))
+        new-y (+ (+ (* (- (* (* u v) one-minus-cos-angle)
+                          (* w sin-angle))
+                       x)
+                    (* (+ cos-angle
+                          (* (* v v) one-minus-cos-angle))
+                       y))
+                 (* (+ (* (* v w) one-minus-cos-angle)
+                       (* u sin-angle))
+                    z))
+        new-z (+ (+ (* (+ (* (* u w) one-minus-cos-angle)
+                          (* v sin-angle))
+                       x)
+                    (* (- (* (* v w) one-minus-cos-angle)
+                          (* u sin-angle))
+                       y))
+                 (* (+ cos-angle (* (* w w) one-minus-cos-angle))
+                    z))]
+    {:x new-x :y new-y :z new-z}))
+(comment
+ (let [vector {:x 1 :y 0 :z 0}
+       axis {:x 0 :y 0 :z 1}
+       angle (math.rad 90)
+       rotated-vector (_G.vector.rotate-by-axis-angle vector axis angle)]
+   (print (inspect rotated-vector))))
