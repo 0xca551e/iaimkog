@@ -6,13 +6,16 @@
 (require :util)
 (require :level)
 
+(set _G.camera {:x 0 :y 0})
+
 (set _G.control-map {:left "left"
                   :right "right"
                   :up "up"
                   :down "down"
                   :fine-tune "lshift"
                   :secondary "z"
-                  :primary "x"})
+                  :primary "x"
+                  :tertiary "c"})
 
 (set _G.just-pressed {})
 (set _G.shot-angle 0) ; in radians
@@ -40,8 +43,19 @@
     "aiming" (do
                (let [shift-factor (if (love.keyboard.isDown (. _G.control-map :fine-tune)) 0.5 1)
                      speed (* shift-factor 3 dt)
-                     spin-speed (* shift-factor 1 dt)]
-                 (if (love.keyboard.isDown (. _G.control-map :secondary))
+                     spin-speed (* shift-factor 1 dt)
+                     camera-speed (* shift-factor 4)]
+                 (if (love.keyboard.isDown (. _G.control-map :tertiary))
+                     (do
+                       (let [l (if (love.keyboard.isDown (. _G.control-map :left)) -1 0)
+                             r (if (love.keyboard.isDown (. _G.control-map :right)) 1 0)
+                             u (if (love.keyboard.isDown (. _G.control-map :up)) -1 0)
+                             d (if (love.keyboard.isDown (. _G.control-map :down)) 1 0)
+                             dx (* (+ l r) camera-speed)
+                             dy (* (+ u d) camera-speed)]
+                         (-= _G.camera.x dx)
+                         (-= _G.camera.y dy)))
+                     (love.keyboard.isDown (. _G.control-map :secondary))
                      (do
                        (when (love.keyboard.isDown (. _G.control-map :left))
                          (set _G.spin-x (lume.clamp (- _G.spin-x spin-speed) (- 1) 1)))
@@ -259,6 +273,7 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 ;;  (_G.project-point-plane {:x 3 :y 3 :z -100} {:x 0 :y 0 :z 1} {:x 0 :y 0 :z 0}))
 
 (fn love.draw []
+  (love.graphics.translate _G.camera.x _G.camera.y)
   (love.graphics.scale _G.scale)
   (love.graphics.print (inspect _G.just-pressed))
   (_G.shot-draw (love.timer.getDelta))
