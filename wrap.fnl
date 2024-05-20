@@ -27,6 +27,7 @@
 (set _G.shot-meter 0) ; 0 to 1
 (set _G.fly-meter 0) ; -1 to 1
 (set _G.stillness-timer 0)
+(set _G.shot-meter-max-time 1.5)
 
 (set _G.shot-map {:roll {:up "fly" :down "roll2"}
                :roll2 {:up "roll" :down "roll2"}
@@ -44,7 +45,7 @@
                (let [shift-factor (if (love.keyboard.isDown (. _G.control-map :fine-tune)) 0.5 1)
                      speed (* shift-factor 3 dt)
                      spin-speed (* shift-factor 1 dt)
-                     camera-speed (* shift-factor 16)]
+                     camera-speed (* shift-factor 4)]
                  (if (love.keyboard.isDown (. _G.control-map :tertiary))
                      (do
                        (let [l (if (love.keyboard.isDown (. _G.control-map :left)) -1 0)
@@ -96,10 +97,11 @@
     "moving" (do (todo!))))
 
 (fn _G.shot-velocity-vector [shot-type angle meter]
-  (let [base-vector (if (= shot-type "fly") {:x 1 :y 0 :z 1} {:x 1 :y 0 :z 0})
+  (let [base-vector (if (= shot-type "fly") {:x 1 :y 0 :z 3} {:x 1 :y 0 :z 0})
+        base-strength (if (= shot-type "fly") 12 12)
         velocity (-> base-vector
                      (_G.vector.rotate-by-axis-angle {:x 0 :y 0 :z 1} angle)
-                     (_G.vector.scale (* meter 10)))]
+                     (_G.vector.scale (* meter base-strength)))]
     velocity))
 
 (fn _G.apply-shot []
@@ -133,12 +135,12 @@
                     (print fly-level))
     "charging" (do
                  (+= _G.shot-meter-timer dt)
-                 (if (> _G.shot-meter-timer 2)
+                 (if (> _G.shot-meter-timer (* _G.shot-meter-max-time 2))
                      (do
                        (set _G.shot-meter 0.1)
                        (_G.apply-shot))
                      (do
-                       (set _G.shot-meter (_G.triangle-oscillate (/ _G.shot-meter-timer 2)))
+                       (set _G.shot-meter (_G.triangle-oscillate (/ _G.shot-meter-timer (* _G.shot-meter-max-time 2))))
                        (print _G.shot-meter))))
     "moving" (do
                ;; (print "moving?")
@@ -166,16 +168,18 @@
         (print (if ok (fennel.view val) val)))
       (set lines []))))
 
+(set _G.ball-preview [])
 (fn _G.generate-ball-preview []
+  (set _G.ball-preview [])
   (local dt (/ 1 60))
-  (local points [])
   (local preview-ball {:position _G.ball.position :velocity (_G.shot-velocity-vector _G.shot-type _G.shot-angle 1) :radius _G.ball.radius})
-  (for [i 0 100 1]
+  (for [i 0 400 1]
     (_G.integrate-ball2 preview-ball dt)
     (let [{:x x :y y :z z} preview-ball.position
           iso-coords (_G.geometry.to-isometric x y z)]
-      (_G.util.concat-mut points iso-coords)))
-  (love.graphics.line (unpack points)))
+      (_G.util.concat-mut _G.ball-preview iso-coords))))
+(comment
+ (_G.generate-ball-preview))
 
 (fn _G.camera-to-ball []
   (let [[bx by] (_G.geometry.to-isometric _G.ball.position.x _G.ball.position.y _G.ball.position.z)
@@ -210,13 +214,13 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (set _G.ball {:position {:x 10.5 :y -4 :z 0.25}
              :radius 0.25
              :velocity {:x 0 :y 3 :z 0}})
-  (set _G.scale 2)
+  (set _G.scale 3)
   (set _G.grid-size 16)
   (set _G.tile-width 32)
   (set _G.tile-height 16)
   (set _G.sprite-sheet (love.graphics.newImage "Sprite-0001.png"))
   (set _G.sprite-quads
-       {:ball (love.graphics.newQuad (* _G.grid-size 2) 0 _G.grid-size _G.grid-size (_G.sprite-sheet:getDimensions))
+       {:ball (love.graphics.newQuad 0 64 17 17 (_G.sprite-sheet:getDimensions))
         :floor (love.graphics.newQuad 0 0 (* _G.grid-size 2) (* _G.grid-size 2) (_G.sprite-sheet:getDimensions))
         :slope-dl (love.graphics.newQuad 48 0 32 48 (_G.sprite-sheet:getDimensions))
         :hole-tile (love.graphics.newQuad 0 32 (* _G.grid-size 2) (* _G.grid-size 2) (_G.sprite-sheet:getDimensions))})
@@ -237,44 +241,7 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (for [i -20 20 1]
     (for [j -20 20 1]
       (_G.level.make-floor i j 0)))
-
-  ;; (_G.level.make-floor 10 -5 0)
-  ;; (_G.level.make-floor 10 -4 0)
-  ;; (_G.level.make-floor 10 -3 0)
-  ;; (_G.level.make-floor 10 -2 0)
-  ;; (_G.level.make-floor 10 -1 0)
-  ;; (_G.level.make-floor 10 0 0)
-  ;; (_G.level.make-floor 11 0 0)
-  ;; (_G.level.make-floor 12 0 0)
-  ;; (_G.level.make-hole 13 0 0)
-  ;; ;; (_G.level.make-floor 14 0 -4)
-  ;; ;; (_G.level.make-floor 13 1 -4)
-  ;; ;; (_G.level.make-floor 3 1 0)
-  ;; ;; (_G.level.make-floor 3 2 0)
-  ;; ;; (_G.level.make-floor 3 3 0)
-  ;; ;; (_G.level.make-floor 3 3 1)
-  ;; ;; (_G.level.make-floor 3 3 2)
-  ;; ;; (_G.level.make-floor 3 3 3)
-
-  ;; (_G.level.make-slope 10 1 0)
-  ;; (_G.level.make-slope 10 2 -1)
-  ;; (_G.level.make-slope 10 3 -2)
-  ;; (_G.level.make-slope 10 4 -3)
-  ;; (_G.level.make-slope 10 5 -4)
-
-  ;; (_G.level.make-floor 10 6 -5)
-  ;; (_G.level.make-floor 10 7 -5)
-  ;; (_G.level.make-floor 10 8 -5)
-  ;; (_G.level.make-floor 10 9 -5)
   )
-
-(fn _G.integrate-ball [dt]
-  (set _G.ball.velocity (-> _G.ball.velocity
-                         (_G.vector.scale (/ 1 (+ 1 (* dt _G.friction))))))
-  (+= _G.ball.velocity.z (- _G.gravity))
-  (set _G.ball.position (-> _G.ball.velocity
-                         (_G.vector.scale dt)
-                         (_G.vector.add _G.ball.position))))
 
 ;; TODO: replace integrate-ball if this works out
 (fn _G.integrate-ball2 [ball dt]
@@ -372,8 +339,8 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
     (_G.level.draw-hole v.x v.y v.z))
   (_G.level.draw-ball)
 
-  (when (= _G.shot-state "aiming")
-    (_G.generate-ball-preview))
+  (when (and (= _G.shot-state "aiming") (>= (# _G.ball-preview) 2))
+    (love.graphics.line (unpack _G.ball-preview)))
 
   (love.graphics.origin)
   (_G.shot-draw (love.timer.getDelta))
