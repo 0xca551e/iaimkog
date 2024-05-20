@@ -34,3 +34,16 @@
 
 (fn _G.util.flatten [t]
   (lume.concat (unpack t)))
+
+(fn _G.util.insertion-sort-mut [arr]
+  (for [i 2 (length arr)]
+    (local key (. arr i))
+    (var j (- i 1))
+    (while (and (> j 0) (> (. arr j) key))
+      (tset arr (+ j 1) (. arr j))
+      (set j (- j 1)))
+    (tset arr (+ j 1) key)))
+(comment
+ (let [arr [5 2 4 6 1 3]]
+   (_G.util.insertion-sort-mut arr)
+   (print (inspect arr))))	

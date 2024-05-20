@@ -69,31 +69,23 @@
                    [tri.a tri.b tri.c]))
        (_G.util.flatten))])
 
-
 (fn _G.level.make-floor [x y z]
   (table.insert _G.tiles {:x x :y y :z z})
   (let [[tris edges verts] _G.tile-hitboxes.floor]
-    (_G._G.util.concat-mut _G.tris (_G.geometry.translate-tris tris {:x x :y y :z z}))
-    (comment
-     (_G._G.util.concat-mut _G.edges (_G.geometry.translate-edges edges {:x x :y y :z z}))
-     (_G._G.util.concat-mut _G.verts (_G.geometry.translate-verts verts {:x x :y y :z z})))))
+    (_G._G.util.concat-mut _G.tris (_G.geometry.translate-tris-and-add-aabb tris {:x x :y y :z z}))))
 
-(fn _G.level.make-slope [x y z]
-  (table.insert _G.slopes-dl {:x x :y y :z z})
-  (let [[tris edges verts] _G.tile-hitboxes.slope-dl]
-    (_G._G.util.concat-mut _G.tris [(_G.geometry.translate-tris tris {:x x :y y :z z}) {:x x :y y :z z}])
-    (comment
-     (_G._G.util.concat-mut _G.edges (_G.geometry.translate-edges edges {:x x :y y :z z}))
-     (_G._G.util.concat-mut _G.verts (_G.geometry.translate-verts verts {:x x :y y :z z})))))
+; TODO: update to store AABB
+; (fn _G.level.make-slope [x y z]
+;   (table.insert _G.slopes-dl {:x x :y y :z z})
+;   (let [[tris edges verts] _G.tile-hitboxes.slope-dl]
+;     (_G._G.util.concat-mut _G.tris [(_G.geometry.translate-tris-and-add-aabb tris {:x x :y y :z z}) {:x x :y y :z z}])))
 
-(fn _G.level.make-hole [x y z]
-  (table.insert _G.hole-tiles {:x x :y y :z z})
-  ;; (print (inspect _G.tile-hitboxes.floor-with-hole))
-  (let [[tris edges verts] _G.tile-hitboxes.floor-with-hole]
-    (_G._G.util.concat-mut _G.tris [(_G.geometry.translate-tris tris {:x x :y y :z z}) {:x x :y y :z z}])
-    (comment
-     (_G._G.util.concat-mut _G.edges (_G.geometry.translate-edges edges {:x x :y y :z z}))
-     (_G._G.util.concat-mut _G.verts (_G.geometry.translate-verts verts {:x x :y y :z z})))))
+; TODO: update to store AABB
+; (fn _G.level.make-hole [x y z]
+;   (table.insert _G.hole-tiles {:x x :y y :z z})
+;   ;; (print (inspect _G.tile-hitboxes.floor-with-hole))
+;   (let [[tris edges verts] _G.tile-hitboxes.floor-with-hole]
+;     (_G._G.util.concat-mut _G.tris [(_G.geometry.translate-tris-and-add-aabb tris {:x x :y y :z z}) {:x x :y y :z z}])))
 
 (fn _G.level.draw-floor [x y z]
   (let [[ix iy] (_G.geometry.to-isometric x y z)]

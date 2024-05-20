@@ -10,7 +10,7 @@
                     :c {:x 1 :y 0 :z 0}}
                    {:x 2 :y 2 :z 2}))
 
-(fn _G.geometry.translate-tris [tris d]
+(fn _G.geometry.translate-tris-and-add-aabb [tris d]
   (lume.map tris (fn [x] [(_G.geometry.translate-tri x d)
                           {:min {:x d.x :y d.y :z d.z}
                            :max {:x (+ d.x 1) :y (+ d.y 1) :z (+ d.z 1)}}])))

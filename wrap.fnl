@@ -71,8 +71,6 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (set _G.paused false)
 
   (set _G.tris [])
-  (set _G.edges [])
-  (set _G.verts [])
 
   (set _G.tiles [])
   (set _G.slopes-dl [])
