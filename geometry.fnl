@@ -6,12 +6,14 @@
    :c (_G.vector.add tri.c d)})
 (comment
  (_G.translate-tri {:a {:x 0 :y 0 :z 0}
-                 :b {:x 0 :y 1 :z 0}
-                 :c {:x 1 :y 0 :z 0}}
-                {:x 2 :y 2 :z 2}))
+                    :b {:x 0 :y 1 :z 0}
+                    :c {:x 1 :y 0 :z 0}}
+                   {:x 2 :y 2 :z 2}))
 
 (fn _G.geometry.translate-tris [tris d]
-  (lume.map tris (fn [x] (_G.geometry.translate-tri x d))))
+  (lume.map tris (fn [x] [(_G.geometry.translate-tri x d)
+                          {:min {:x d.x :y d.y :z d.z}
+                           :max {:x (+ d.x 1) :y (+ d.y 1) :z (+ d.z 1)}}])))
 
 (fn _G.geometry.translate-edge [edge d]
   [(_G.vector.add (. edge 1) d) (_G.vector.add (. edge 2) d)])
@@ -81,3 +83,17 @@
                                       (_G.vector.scale radius)
                                       (_G.vector.add center)))))]
     positions))
+
+(fn _G.geometry.tri-edges [tris]
+  (local result [])
+  (each [_ tri (ipairs tris)]
+    (_G.util.concat-mut result [[tri.a tri.b]
+                      [tri.b tri.c]
+                      [tri.c tri.a]]))
+  result)
+
+(fn _G.geometry.tri-verts [tris]
+  (local result [])
+  (each [_ tri (ipairs tris)]
+    (_G.util.concat-mut result [tri.a tri.b tri.c]))
+  result)

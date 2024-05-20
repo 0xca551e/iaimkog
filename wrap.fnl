@@ -230,9 +230,9 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
                                                             {:x 0 :y 1 :z 0}
                                                             {:x 1 :y 1 :z 0}))
         :slope-dl (_G._G.level.generate-hitboxes (_G.geometry.rect-tris _G.vector.zero
-                                                               {:x 1 :y 0 :z 0}
-                                                               {:x 0 :y 1 :z -1}
-                                                               {:x 1 :y 1 :z -1}))
+                                                               {:x 1 :y 0 :z 1}
+                                                               {:x 0 :y 1 :z 0}
+                                                               {:x 1 :y 1 :z 0}))
         :floor-with-hole (_G.level.tile-with-hole _G.vector.zero)})
   (set _G.gravity 0.2)
   (set _G.friction 0.5)
@@ -278,8 +278,40 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 ;;  (_G.project-point-plane {:x 3 :y 3 :z 100} {:x 0 :y 0 :z 1} {:x 0 :y 0 :z 0})
 ;;  (_G.project-point-plane {:x 3 :y 3 :z -100} {:x 0 :y 0 :z 1} {:x 0 :y 0 :z 0}))
 
+(fn _G.sphere-aabb [sphere]
+  (let [{:position {:x center-x :y center-y :z center-z} :radius radius} sphere
+        min-x (- center-x radius)
+        min-y (- center-y radius)
+        min-z (- center-z radius)
+        max-x (+ center-x radius)
+        max-y (+ center-y radius)
+        max-z (+ center-z radius)]
+    {:min {:x min-x :y min-y :z min-z}
+     :max {:x max-x :y max-y :z max-z}}))
+(comment
+ (_G.sphere-aabb _G.ball))
+
+(fn _G.aabb-overlaps [aabb1 aabb2]
+  ;; (print (inspect (lume.first _G.tris)))
+  ;; (print (inspect aabb1))
+  ;; (print (inspect aabb2))
+  (when (or (< aabb1.max.x aabb2.min.x)
+            (> aabb1.min.x aabb2.max.x))
+    (lua "return false"))
+  (when (or (< aabb1.max.y aabb2.min.y)
+            (> aabb1.min.y aabb2.max.y))
+    (lua "return false"))
+  true)
+
 (fn _G.collision-detection-and-resolution [ball]
-  (each [_ tri (ipairs _G.tris)]
+  (local broad-phase-collisions [])
+  (local ball-aabb (_G.sphere-aabb ball))
+  (each [_ [tri aabb] (ipairs _G.tris)]
+    (when (_G.aabb-overlaps ball-aabb aabb)
+      (table.insert broad-phase-collisions tri)))
+
+  (each [_ tri (ipairs broad-phase-collisions)]
+    ;; (print (inspect tri))
     (let [collision (_G.physics.collision-sphere-tri ball tri)]
       (when (and collision (< (_G.vector.length collision.mtv) 0.5))
         ;; (love.graphics.print "Collision!")
@@ -293,14 +325,13 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
                         (_G.vector.scale perpendicular-component (- _G.elasticity)))]
           (set ball.position (_G.vector.add ball.position collision.mtv))
           (set ball.velocity response)))))
-
-  (each [_ edge (ipairs _G.edges)]
+  (each [_ edge (ipairs (_G.geometry.tri-edges broad-phase-collisions))]
     (let [collision (_G.physics.collision-sphere-line ball edge)]
       (when collision
-        ;; (love.graphics.print "Collision (Edge)!")
+        ;; (love.graphics.print "Collision!")
         (let [
               n (_G.vector.normalize collision.mtv)
-              d (_G.vector.dot ball.velocity n)
+              d (_G.vector.dot _G.ball.velocity n)
               perpendicular-component (_G.vector.scale n d)
               parallel-component (_G.vector.subtract ball.velocity perpendicular-component)
               response (_G.vector.add
@@ -308,14 +339,13 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
                         (_G.vector.scale perpendicular-component (- _G.elasticity)))]
           (set ball.position (_G.vector.add ball.position collision.mtv))
           (set ball.velocity response)))))
-
-  (each [_ vert (ipairs _G.verts)]
+  (each [_ vert (ipairs (_G.geometry.tri-verts broad-phase-collisions))]
     (let [collision (_G.physics.collision-sphere-point ball vert)]
       (when collision
-        ;; (love.graphics.print "Collision (Vert)!")
+        ;; (love.graphics.print "Collision!")
         (let [
               n (_G.vector.normalize collision.mtv)
-              d (_G.vector.dot ball.velocity n)
+              d (_G.vector.dot _G.ball.velocity n)
               perpendicular-component (_G.vector.scale n d)
               parallel-component (_G.vector.subtract ball.velocity perpendicular-component)
               response (_G.vector.add
@@ -340,6 +370,7 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (_G.level.draw-ball)
 
   (when (and (= _G.shot-state "aiming") (>= (# _G.ball-preview) 2))
+    (_G.generate-ball-preview)
     (love.graphics.line (unpack _G.ball-preview)))
 
   (love.graphics.origin)
@@ -355,4 +386,3 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   ;; (when _G.paused
   ;;   (_G.integrate-ball (love.timer.getDelta)))
   )
-
