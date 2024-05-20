@@ -35,17 +35,28 @@
 (fn _G.util.flatten [t]
   (lume.concat (unpack t)))
 
-(fn _G.util.insertion-sort-mut [arr]
+(fn _G.util.insertion-sort-by-mut [arr by-fn]
   (for [i 2 (length arr)]
-    (local key (. arr i))
+    (local elem (. arr i))
     (var j (- i 1))
-    (while (and (> j 0) (> (. arr j) key))
+    (while (and (> j 0) (> (by-fn (. arr j) elem) (- 1)))
       (tset arr (+ j 1) (. arr j))
       (set j (- j 1)))
-    (tset arr (+ j 1) key)))
+    (tset arr (+ j 1) elem)))
 (comment
  (let [arr [5 2 4 6 1 3]]
-   (_G.util.insertion-sort-mut arr)
+   (_G.util.insertion-sort-by-mut arr (fn [a b] (- a b)))
+   (print (inspect arr)))
+ (let [arr [5 2 4 6 1 3]]
+   (_G.util.insertion-sort-by-mut arr (fn [a b] (- b a)))
+   (print (inspect arr)))
+ (let [arr [{:x 5}
+            {:x 2}
+            {:x 4}
+            {:x 6}
+            {:x 1}
+            {:x 3}]]
+   (_G.util.insertion-sort-by-mut arr (fn [a b] (- a.x b.x)))
    (print (inspect arr))))	
 
 (fn _G.util.find-range [table min max]
