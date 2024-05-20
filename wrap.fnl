@@ -44,7 +44,7 @@
                (let [shift-factor (if (love.keyboard.isDown (. _G.control-map :fine-tune)) 0.5 1)
                      speed (* shift-factor 3 dt)
                      spin-speed (* shift-factor 1 dt)
-                     camera-speed (* shift-factor 4)]
+                     camera-speed (* shift-factor 16)]
                  (if (love.keyboard.isDown (. _G.control-map :tertiary))
                      (do
                        (let [l (if (love.keyboard.isDown (. _G.control-map :left)) -1 0)
@@ -95,14 +95,17 @@
                  (_G.apply-shot))
     "moving" (do (todo!))))
 
+(fn _G.shot-velocity-vector [shot-type angle meter]
+  (let [base-vector (if (= shot-type "fly") {:x 1 :y 0 :z 1} {:x 1 :y 0 :z 0})
+        velocity (-> base-vector
+                     (_G.vector.rotate-by-axis-angle {:x 0 :y 0 :z 1} angle)
+                     (_G.vector.scale (* meter 10)))]
+    velocity))
+
 (fn _G.apply-shot []
   (set _G.shot-state "moving")
   (set _G.stillness-timer 0)
-  (let [base-vector (if (= _G.shot-type "fly") (_G.vector.normalize {:x 1 :y 0 :z 1}) {:x 1 :y 0 :z 0})
-        velocity (-> base-vector
-                     (_G.vector.rotate-by-axis-angle {:x 0 :y 0 :z 1} _G.shot-angle)
-                     (_G.vector.scale (* _G.shot-meter 10)))]
-    (set _G.ball.velocity velocity)))
+  (set _G.ball.velocity (_G.shot-velocity-vector _G.shot-type _G.shot-angle _G.shot-meter)))
 
 (fn _G.conclude-shot []
   (set _G.shot-angle 0)
@@ -139,7 +142,7 @@
                        (print _G.shot-meter))))
     "moving" (do
                ;; (print "moving?")
-               (_G.integrate-ball dt)
+               (_G.integrate-ball2 _G.ball dt)
                (when (< (_G.vector.length-sq _G.ball.velocity) 0.02)
                  (+= _G.stillness-timer dt)
                  (when (> _G.stillness-timer 3)
@@ -163,6 +166,28 @@
         (print (if ok (fennel.view val) val)))
       (set lines []))))
 
+(fn _G.generate-ball-preview []
+  (local dt (/ 1 60))
+  (local points [])
+  (local preview-ball {:position _G.ball.position :velocity (_G.shot-velocity-vector _G.shot-type _G.shot-angle 1) :radius _G.ball.radius})
+  (for [i 0 100 1]
+    (_G.integrate-ball2 preview-ball dt)
+    (let [{:x x :y y :z z} preview-ball.position
+          iso-coords (_G.geometry.to-isometric x y z)]
+      (_G.util.concat-mut points iso-coords)))
+  (love.graphics.line (unpack points)))
+
+(fn _G.camera-to-ball []
+  (let [[bx by] (_G.geometry.to-isometric _G.ball.position.x _G.ball.position.y _G.ball.position.z)
+        width (/ (love.graphics.getWidth) _G.scale)
+        height (/ (love.graphics.getHeight) _G.scale)
+        x (- bx (/ width 2))
+        y (- by (/ height 2))]
+    (set _G.camera.x (- x))
+    (set _G.camera.y (- y))))
+(comment
+ (_G.camera-to-ball))
+
 (fn love.load []
   ;; start a thread listening on stdin
   (: (love.thread.newThread "require('love.event')
@@ -180,12 +205,12 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (set _G.hole-tiles [])
 
   (set _G.test-tri {:a {:x 1 :y 0 :z 0}
-                    :b {:x 2 :y 1 :z 0}
-                    :c {:x 1 :y 1 :z 0}})
+                 :b {:x 2 :y 1 :z 0}
+                 :c {:x 1 :y 1 :z 0}})
   (set _G.ball {:position {:x 10.5 :y -4 :z 0.25}
-                :radius 0.25
-                :velocity {:x 0 :y 3 :z 0}})
-  (set _G.scale 3)
+             :radius 0.25
+             :velocity {:x 0 :y 3 :z 0}})
+  (set _G.scale 2)
   (set _G.grid-size 16)
   (set _G.tile-width 32)
   (set _G.tile-height 16)
@@ -197,46 +222,50 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
         :hole-tile (love.graphics.newQuad 0 32 (* _G.grid-size 2) (* _G.grid-size 2) (_G.sprite-sheet:getDimensions))})
   (set _G.tile-hitboxes
        {:floor (_G._G.level.generate-hitboxes (_G.geometry.rect-tris _G.vector.zero
-                                                   {:x 1 :y 0 :z 0}
-                                                   {:x 0 :y 1 :z 0}
-                                                   {:x 1 :y 1 :z 0}))
+                                                            {:x 1 :y 0 :z 0}
+                                                            {:x 0 :y 1 :z 0}
+                                                            {:x 1 :y 1 :z 0}))
         :slope-dl (_G._G.level.generate-hitboxes (_G.geometry.rect-tris _G.vector.zero
-                                                      {:x 1 :y 0 :z 0}
-                                                      {:x 0 :y 1 :z -1}
-                                                      {:x 1 :y 1 :z -1}))
+                                                               {:x 1 :y 0 :z 0}
+                                                               {:x 0 :y 1 :z -1}
+                                                               {:x 1 :y 1 :z -1}))
         :floor-with-hole (_G.level.tile-with-hole _G.vector.zero)})
   (set _G.gravity 0.2)
-  (set _G.friction 1)
+  (set _G.friction 0.5)
   (set _G.elasticity 0.8)
 
-  (_G.level.make-floor 10 -5 0)
-  (_G.level.make-floor 10 -4 0)
-  (_G.level.make-floor 10 -3 0)
-  (_G.level.make-floor 10 -2 0)
-  (_G.level.make-floor 10 -1 0)
-  (_G.level.make-floor 10 0 0)
-  (_G.level.make-floor 11 0 0)
-  (_G.level.make-floor 12 0 0)
-  (_G.level.make-hole 13 0 0)
-  ;; (_G.level.make-floor 14 0 -4)
-  ;; (_G.level.make-floor 13 1 -4)
-  ;; (_G.level.make-floor 3 1 0)
-  ;; (_G.level.make-floor 3 2 0)
-  ;; (_G.level.make-floor 3 3 0)
-  ;; (_G.level.make-floor 3 3 1)
-  ;; (_G.level.make-floor 3 3 2)
-  ;; (_G.level.make-floor 3 3 3)
+  (for [i -20 20 1]
+    (for [j -20 20 1]
+      (_G.level.make-floor i j 0)))
 
-  (_G.level.make-slope 10 1 0)
-  (_G.level.make-slope 10 2 -1)
-  (_G.level.make-slope 10 3 -2)
-  (_G.level.make-slope 10 4 -3)
-  (_G.level.make-slope 10 5 -4)
+  ;; (_G.level.make-floor 10 -5 0)
+  ;; (_G.level.make-floor 10 -4 0)
+  ;; (_G.level.make-floor 10 -3 0)
+  ;; (_G.level.make-floor 10 -2 0)
+  ;; (_G.level.make-floor 10 -1 0)
+  ;; (_G.level.make-floor 10 0 0)
+  ;; (_G.level.make-floor 11 0 0)
+  ;; (_G.level.make-floor 12 0 0)
+  ;; (_G.level.make-hole 13 0 0)
+  ;; ;; (_G.level.make-floor 14 0 -4)
+  ;; ;; (_G.level.make-floor 13 1 -4)
+  ;; ;; (_G.level.make-floor 3 1 0)
+  ;; ;; (_G.level.make-floor 3 2 0)
+  ;; ;; (_G.level.make-floor 3 3 0)
+  ;; ;; (_G.level.make-floor 3 3 1)
+  ;; ;; (_G.level.make-floor 3 3 2)
+  ;; ;; (_G.level.make-floor 3 3 3)
 
-  (_G.level.make-floor 10 6 -5)
-  (_G.level.make-floor 10 7 -5)
-  (_G.level.make-floor 10 8 -5)
-  (_G.level.make-floor 10 9 -5)
+  ;; (_G.level.make-slope 10 1 0)
+  ;; (_G.level.make-slope 10 2 -1)
+  ;; (_G.level.make-slope 10 3 -2)
+  ;; (_G.level.make-slope 10 4 -3)
+  ;; (_G.level.make-slope 10 5 -4)
+
+  ;; (_G.level.make-floor 10 6 -5)
+  ;; (_G.level.make-floor 10 7 -5)
+  ;; (_G.level.make-floor 10 8 -5)
+  ;; (_G.level.make-floor 10 9 -5)
   )
 
 (fn _G.integrate-ball [dt]
@@ -246,6 +275,16 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (set _G.ball.position (-> _G.ball.velocity
                          (_G.vector.scale dt)
                          (_G.vector.add _G.ball.position))))
+
+;; TODO: replace integrate-ball if this works out
+(fn _G.integrate-ball2 [ball dt]
+  (set ball.velocity (-> ball.velocity
+                            (_G.vector.scale (/ 1 (+ 1 (* dt _G.friction))))))
+  (+= ball.velocity.z (- _G.gravity))
+  (set ball.position (-> ball.velocity
+                            (_G.vector.scale dt)
+                            (_G.vector.add ball.position)))
+  (_G.collision-detection-and-resolution ball))
 
 (fn _G.manual-control-ball [dt]
   (let [d (* 5 dt)
@@ -272,11 +311,58 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 ;;  (_G.project-point-plane {:x 3 :y 3 :z 100} {:x 0 :y 0 :z 1} {:x 0 :y 0 :z 0})
 ;;  (_G.project-point-plane {:x 3 :y 3 :z -100} {:x 0 :y 0 :z 1} {:x 0 :y 0 :z 0}))
 
+(fn _G.collision-detection-and-resolution [ball]
+  (each [_ tri (ipairs _G.tris)]
+    (let [collision (_G.physics.collision-sphere-tri ball tri)]
+      (when (and collision (< (_G.vector.length collision.mtv) 0.5))
+        ;; (love.graphics.print "Collision!")
+        (let [
+              n (_G.vector.normalize collision.mtv)
+              d (_G.vector.dot _G.ball.velocity n)
+              perpendicular-component (_G.vector.scale n d)
+              parallel-component (_G.vector.subtract ball.velocity perpendicular-component)
+              response (_G.vector.add
+                        parallel-component
+                        (_G.vector.scale perpendicular-component (- _G.elasticity)))]
+          (set ball.position (_G.vector.add ball.position collision.mtv))
+          (set ball.velocity response)))))
+
+  (each [_ edge (ipairs _G.edges)]
+    (let [collision (_G.physics.collision-sphere-line ball edge)]
+      (when collision
+        ;; (love.graphics.print "Collision (Edge)!")
+        (let [
+              n (_G.vector.normalize collision.mtv)
+              d (_G.vector.dot ball.velocity n)
+              perpendicular-component (_G.vector.scale n d)
+              parallel-component (_G.vector.subtract ball.velocity perpendicular-component)
+              response (_G.vector.add
+                        parallel-component
+                        (_G.vector.scale perpendicular-component (- _G.elasticity)))]
+          (set ball.position (_G.vector.add ball.position collision.mtv))
+          (set ball.velocity response)))))
+
+  (each [_ vert (ipairs _G.verts)]
+    (let [collision (_G.physics.collision-sphere-point ball vert)]
+      (when collision
+        ;; (love.graphics.print "Collision (Vert)!")
+        (let [
+              n (_G.vector.normalize collision.mtv)
+              d (_G.vector.dot ball.velocity n)
+              perpendicular-component (_G.vector.scale n d)
+              parallel-component (_G.vector.subtract ball.velocity perpendicular-component)
+              response (_G.vector.add
+                        parallel-component
+                        (_G.vector.scale perpendicular-component (- _G.elasticity)))]
+          (set ball.position (_G.vector.add ball.position collision.mtv))
+          (set ball.velocity response))))))
+
 (fn love.draw []
-  (love.graphics.translate _G.camera.x _G.camera.y)
   (love.graphics.scale _G.scale)
+  (when (= _G.shot-state "moving")
+    (_G.camera-to-ball))
+  (love.graphics.translate _G.camera.x _G.camera.y)
   (love.graphics.print (inspect _G.just-pressed))
-  (_G.shot-draw (love.timer.getDelta))
   
   (each [_ v (ipairs _G.tiles)]
     (_G.level.draw-floor v.x v.y v.z))
@@ -286,50 +372,11 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
     (_G.level.draw-hole v.x v.y v.z))
   (_G.level.draw-ball)
 
-  (each [_ tri (ipairs _G.tris)]
-    (let [collision (_G.physics.collision-sphere-tri _G.ball tri)]
-      (when (and collision (< (_G.vector.length collision.mtv) 0.5))
-        ;; (love.graphics.print "Collision!")
-        (let [
-              n (_G.vector.normalize collision.mtv)
-              d (_G.vector.dot _G.ball.velocity n)
-              perpendicular-component (_G.vector.scale n d)
-              parallel-component (_G.vector.subtract _G.ball.velocity perpendicular-component)
-              response (_G.vector.add
-                        parallel-component
-                        (_G.vector.scale perpendicular-component (- _G.elasticity)))]
-          (set _G.ball.position (_G.vector.add _G.ball.position collision.mtv))
-          (set _G.ball.velocity response)))))
+  (when (= _G.shot-state "aiming")
+    (_G.generate-ball-preview))
 
-  (each [_ edge (ipairs _G.edges)]
-    (let [collision (_G.physics.collision-sphere-line _G.ball edge)]
-      (when collision
-        ;; (love.graphics.print "Collision (Edge)!")
-        (let [
-              n (_G.vector.normalize collision.mtv)
-              d (_G.vector.dot _G.ball.velocity n)
-              perpendicular-component (_G.vector.scale n d)
-              parallel-component (_G.vector.subtract _G.ball.velocity perpendicular-component)
-              response (_G.vector.add
-                        parallel-component
-                        (_G.vector.scale perpendicular-component (- _G.elasticity)))]
-          (set _G.ball.position (_G.vector.add _G.ball.position collision.mtv))
-          (set _G.ball.velocity response)))))
-
-  (each [_ vert (ipairs _G.verts)]
-    (let [collision (_G.physics.collision-sphere-point _G.ball vert)]
-      (when collision
-        ;; (love.graphics.print "Collision (Vert)!")
-        (let [
-              n (_G.vector.normalize collision.mtv)
-              d (_G.vector.dot _G.ball.velocity n)
-              perpendicular-component (_G.vector.scale n d)
-              parallel-component (_G.vector.subtract _G.ball.velocity perpendicular-component)
-              response (_G.vector.add
-                        parallel-component
-                        (_G.vector.scale perpendicular-component (- _G.elasticity)))]
-          (set _G.ball.position (_G.vector.add _G.ball.position collision.mtv))
-          (set _G.ball.velocity response)))))
+  (love.graphics.origin)
+  (_G.shot-draw (love.timer.getDelta))
   
   (lume.clear _G.just-pressed))
 
