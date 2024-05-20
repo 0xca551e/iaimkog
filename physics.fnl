@@ -73,3 +73,80 @@
         penetration-depth (- (_G.physics.distance-plane-point-normal nearest normal t.a))]
     (if (and point-in-tri (> penetration-depth 0))
         {:mtv (_G.vector.scale normal penetration-depth)})))
+
+(fn _G.physics.sphere-aabb [sphere]
+  (let [{:position {:x center-x :y center-y :z center-z} :radius radius} sphere
+        min-x (- center-x radius)
+        min-y (- center-y radius)
+        min-z (- center-z radius)
+        max-x (+ center-x radius)
+        max-y (+ center-y radius)
+        max-z (+ center-z radius)]
+    {:min {:x min-x :y min-y :z min-z}
+     :max {:x max-x :y max-y :z max-z}}))
+(comment
+ (_G.physics.sphere-aabb _G.ball))
+
+(fn _G.physics.aabb-overlaps [aabb1 aabb2]
+  ;; (print (inspect (lume.first _G.tris)))
+  ;; (print (inspect aabb1))
+  ;; (print (inspect aabb2))
+  (when (or (< aabb1.max.x aabb2.min.x)
+            (> aabb1.min.x aabb2.max.x))
+    (lua "return false"))
+  (when (or (< aabb1.max.y aabb2.min.y)
+            (> aabb1.min.y aabb2.max.y))
+    (lua "return false"))
+  true)
+
+(fn _G.physics.collision-detection-and-resolution [ball]
+  (local broad-phase-collisions [])
+  (local ball-aabb (_G.physics.sphere-aabb ball))
+  (each [_ [tri aabb] (ipairs _G.tris)]
+    (when (_G.physics.aabb-overlaps ball-aabb aabb)
+      (table.insert broad-phase-collisions tri)))
+
+  (each [_ tri (ipairs broad-phase-collisions)]
+    ;; (print (inspect tri))
+    (let [collision (_G.physics.collision-sphere-tri ball tri)]
+      (when (and collision (< (_G.vector.length collision.mtv) 0.5))
+        ;; (love.graphics.print "Collision!")
+        (let [
+              n (_G.vector.normalize collision.mtv)
+              d (_G.vector.dot _G.ball.velocity n)
+              perpendicular-component (_G.vector.scale n d)
+              parallel-component (_G.vector.subtract ball.velocity perpendicular-component)
+              response (_G.vector.add
+                        parallel-component
+                        (_G.vector.scale perpendicular-component (- _G.elasticity)))]
+          (set ball.position (_G.vector.add ball.position collision.mtv))
+          (set ball.velocity response)))))
+  (each [_ edge (ipairs (_G.geometry.tri-edges broad-phase-collisions))]
+    (let [collision (_G.physics.collision-sphere-line ball edge)]
+      (when collision
+        ;; (love.graphics.print "Collision!")
+        (let [
+              n (_G.vector.normalize collision.mtv)
+              d (_G.vector.dot _G.ball.velocity n)
+              perpendicular-component (_G.vector.scale n d)
+              parallel-component (_G.vector.subtract ball.velocity perpendicular-component)
+              response (_G.vector.add
+                        parallel-component
+                        (_G.vector.scale perpendicular-component (- _G.elasticity)))]
+          (set ball.position (_G.vector.add ball.position collision.mtv))
+          (set ball.velocity response)))))
+  (each [_ vert (ipairs (_G.geometry.tri-verts broad-phase-collisions))]
+    (let [collision (_G.physics.collision-sphere-point ball vert)]
+      (when collision
+        ;; (love.graphics.print "Collision!")
+        (let [
+              n (_G.vector.normalize collision.mtv)
+              d (_G.vector.dot _G.ball.velocity n)
+              perpendicular-component (_G.vector.scale n d)
+              parallel-component (_G.vector.subtract ball.velocity perpendicular-component)
+              response (_G.vector.add
+                        parallel-component
+                        (_G.vector.scale perpendicular-component (- _G.elasticity)))]
+          (set ball.position (_G.vector.add ball.position collision.mtv))
+          (set ball.velocity response))))))
+
