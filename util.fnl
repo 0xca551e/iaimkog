@@ -47,3 +47,23 @@
  (let [arr [5 2 4 6 1 3]]
    (_G.util.insertion-sort-mut arr)
    (print (inspect arr))))	
+
+(fn _G.util.find-range [table min max]
+  (var start-idx 1)
+  (var end-idx (length table))
+  (while (<= start-idx end-idx)
+    (local mid (math.floor (/ (+ start-idx end-idx) 2)))
+    (if (< (. table mid) min) (set start-idx (+ mid 1))
+        (set end-idx (- mid 1))))
+  (local start-index start-idx)
+  (set start-idx 1)
+  (set end-idx (length table))
+  (while (<= start-idx end-idx)
+    (local mid (math.floor (/ (+ start-idx end-idx) 2)))
+    (if (<= (. table mid) max) (set start-idx (+ mid 1))
+        (set end-idx (- mid 1))))
+  (local end-index end-idx)
+  [start-index end-index])
+(comment
+ (_G.util.find-range [1 3 5 7 9 11 13 15] 5 11)
+ (_G.util.find-range [1 3 5 7 9 11 13 15] 2 12))
