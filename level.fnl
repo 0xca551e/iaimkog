@@ -106,8 +106,8 @@
         (let [[x y z hex] (_G.split-words formatted-line)
               color-name (. _G.level.color-names hex)
               tile (. _G.level.color-tile-map color-name)]
-          ;; (print (.. x " " y " " z " " tile))
-          (_G.level.make-tile tile x y z))))))
+          (when tile
+            (_G.level.make-tile tile (- x) y z)))))))
 (comment
  (_G.level.read-file-lines "test-level.txt"))
 
@@ -116,20 +116,20 @@
 
 (set _G.sprite-quads {})
 (-> [[:floor 0 0 32 32]
-     [:slope-r 0 1 32 32]
-     [:slope-d 0 2 32 32]
-     [:slope-l 0 3 32 32]
-     [:slope-u 0 4 32 32]
+     [:slope-r 1 0 32 32]
+     [:slope-d 2 0 32 32]
+     [:slope-l 3 0 32 32]
+     [:slope-u 4 0 32 32]
      [:hole 0 1 32 32]
      [:slope-out-dr 1 1 32 32]
-     [:slope-out-dl 1 2 32 32]
-     [:slope-out-ul 1 3 32 32]
-     [:slope-out-ur 1 4 32 32]
+     [:slope-out-dl 2 1 32 32]
+     [:slope-out-ul 3 1 32 32]
+     [:slope-out-ur 4 1 32 32]
      [:ball 0 2 17 17]
      [:slope-in-dr 1 2 32 32]
-     [:slope-in-dl 2 3 32 32]
-     [:slope-in-ul 3 3 32 32]
-     [:slope-in-ur 4 3 32 32]]
+     [:slope-in-dl 2 2 32 32]
+     [:slope-in-ul 3 2 32 32]
+     [:slope-in-ur 4 2 32 32]]
     (lume.each (fn [[id gx gy sw sh]]
                 (tset _G.sprite-quads id
                       (love.graphics.newQuad

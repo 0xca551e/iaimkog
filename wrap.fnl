@@ -74,9 +74,9 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
   (set _G.tris [])
 
-  (set _G.ball {:position {:x 10.5 :y -4 :z 2.25}
+  (set _G.ball {:position {:x 0 :y 0 :z 1.25}
              :radius 0.25
-             :velocity {:x 0 :y 3 :z 0}
+             :velocity {:x 0 :y 0 :z 0}
              :variant :ball})
   (set _G.drawables [_G.ball])
 
@@ -88,9 +88,10 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (set _G.friction 0.5)
   (set _G.elasticity 0.8)
 
-  (for [i -20 20 1]
-    (for [j -20 20 1]
-      (_G.level.make-tile :floor i j 0)))
+  ; (for [i -20 20 1]
+  ;   (for [j -20 20 1]
+  ;     (_G.level.make-tile :floor i j 0)))
+  (_G.level.read-file-lines "test-level2.txt")
   ;; NOTE: the level is static, so we don't need to sort every frame.
   ;; in a later version this might change
   (_G.util.insertion-sort-by-mut _G.tris (fn [a b]
@@ -134,8 +135,12 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 ;;  (_G.project-point-plane {:x 3 :y 3 :z 100} {:x 0 :y 0 :z 1} {:x 0 :y 0 :z 0})
 ;;  (_G.project-point-plane {:x 3 :y 3 :z -100} {:x 0 :y 0 :z 1} {:x 0 :y 0 :z 0}))
 
+(set _G.bg1 (love.graphics.newImage "bg1.png"))
+(set _G.bg2 (love.graphics.newImage "bg2.png"))
+
 (fn love.draw []
   (love.graphics.scale _G.scale)
+  (love.graphics.draw _G.bg1)
   (when (= _G.shot.state "moving")
     (_G.camera-to-ball))
   (love.graphics.translate _G.camera.x _G.camera.y)
