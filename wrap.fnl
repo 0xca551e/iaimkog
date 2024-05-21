@@ -109,16 +109,22 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (for [i -20 20 1]
     (for [j -20 20 1]
       (_G.level.make-floor i j 0)))
+  ;; NOTE: the level is static, so we don't need to sort every frame.
+  ;; in a later version this might change
+  (_G.util.insertion-sort-by-mut _G.tris (fn [a b]
+                                (let [[tri-a aabb-a] a
+                                      [tri-b aabb-b] b]
+                                  (- aabb-a.min.x aabb-b.min.x))))
   )
 
 ;; TODO: replace integrate-ball if this works out
 (fn _G.integrate-ball2 [ball dt]
   (set ball.velocity (-> ball.velocity
-                            (_G.vector.scale (/ 1 (+ 1 (* dt _G.friction))))))
+                         (_G.vector.scale (/ 1 (+ 1 (* dt _G.friction))))))
   (+= ball.velocity.z (- _G.gravity))
   (set ball.position (-> ball.velocity
-                            (_G.vector.scale dt)
-                            (_G.vector.add ball.position)))
+                         (_G.vector.scale dt)
+                         (_G.vector.add ball.position)))
   (_G.physics.collision-detection-and-resolution ball))
 
 (fn _G.manual-control-ball [dt]

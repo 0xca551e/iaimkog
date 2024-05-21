@@ -102,9 +102,11 @@
 (fn _G.physics.collision-detection-and-resolution [ball]
   (local broad-phase-collisions [])
   (local ball-aabb (_G.physics.sphere-aabb ball))
-  (each [_ [tri aabb] (ipairs _G.tris)]
-    (when (_G.physics.aabb-overlaps ball-aabb aabb)
-      (table.insert broad-phase-collisions tri)))
+  (local ball-sweep-range (_G.util.find-range _G.tris ball-aabb.min.x ball-aabb.max.x [2 :max :x] [2 :min :x]))
+  (for [i (. ball-sweep-range 1) (. ball-sweep-range 2) 1]
+    (let [[tri aabb] (. _G.tris i)]
+      (when (_G.physics.aabb-overlaps ball-aabb aabb)
+        (table.insert broad-phase-collisions tri))))
 
   (each [_ tri (ipairs broad-phase-collisions)]
     ;; (print (inspect tri))

@@ -57,24 +57,46 @@
             {:x 1}
             {:x 3}]]
    (_G.util.insertion-sort-by-mut arr (fn [a b] (- a.x b.x)))
-   (print (inspect arr))))	
+   (print (inspect arr))))
 
-(fn _G.util.find-range [table min max]
+(fn _G.util.get [t f ...] (if (= nil f) t (_G.util.get (. t f) ...)))
+(comment
+ (_G.util.get [{:a {:b 123}}] 1 :a :b)
+ (_G.util.get [{:a {:b 123}}] (unpack [1 :a :b])))
+
+(fn _G.util.find-range [table min max min-get max-get]
   (var start-idx 1)
   (var end-idx (length table))
   (while (<= start-idx end-idx)
     (local mid (math.floor (/ (+ start-idx end-idx) 2)))
-    (if (< (. table mid) min) (set start-idx (+ mid 1))
+    (if (< (_G.util.get table mid (unpack min-get)) min) (set start-idx (+ mid 1))
         (set end-idx (- mid 1))))
   (local start-index start-idx)
   (set start-idx 1)
   (set end-idx (length table))
   (while (<= start-idx end-idx)
     (local mid (math.floor (/ (+ start-idx end-idx) 2)))
-    (if (<= (. table mid) max) (set start-idx (+ mid 1))
+    (if (<= (_G.util.get table mid (unpack max-get)) max) (set start-idx (+ mid 1))
         (set end-idx (- mid 1))))
   (local end-index end-idx)
   [start-index end-index])
 (comment
- (_G.util.find-range [1 3 5 7 9 11 13 15] 5 11)
- (_G.util.find-range [1 3 5 7 9 11 13 15] 2 12))
+ (_G.util.find-range [4 5 6] 1 2 [] [])
+ (_G.util.find-range [1
+                   3
+                   5
+                   7
+                   9
+                   11
+                   13
+                   15]
+                  5 11 [] [])
+ (_G.util.find-range [{:min 1 :max 11 }
+                   {:min 3 :max 13 }
+                   {:min 5 :max 15 }
+                   {:min 7 :max 17 }
+                   {:min 9 :max 19 }
+                   {:min 11 :max 111 }
+                   {:min 13 :max 113 }
+                   {:min 15 :max 115 }]
+                     5 111 [:min] [:max]))
