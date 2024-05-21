@@ -38,6 +38,6 @@
               color-name (. _G.color-names hex)
               tile (. _G.color-tile-map color-name)]
           (when tile
-            (_G.level.make-tile tile (- (tonumber x)) (tonumber y) (tonumber z))))))))
+            (_G.level.make-tile tile (- (tonumber x)) (tonumber y) (* (tonumber z) _G.block-height))))))))
 (comment
  (_G.level.read-file-lines "levels/test-level.txt"))

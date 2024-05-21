@@ -41,13 +41,13 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
   (set _G.tris [])
 
-  (set _G.ball {:position {:x 0 :y 0 :z 1.25}
+  (set _G.ball {:position {:x -6 :y 5 :z 1.25}
              :radius 0.25
              :velocity {:x 0 :y 0 :z 0}
              :variant :ball})
   (set _G.drawables [_G.ball])
 
-  (_G.level.read-file-lines "levels/test-level2.txt")
+  (_G.level.read-file-lines "levels/updown-level.txt")
   ;; NOTE: the level is static, so we don't need to sort every frame.
   ;; in a later version this might change
   (_G.util.insertion-sort-by-mut _G.tris (fn [a b]

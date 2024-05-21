@@ -54,7 +54,7 @@
 
 (fn _G.geometry.to-isometric [x y z]
   (let [ix (/ (* (- x y) _G.tile-width) 2)
-        iy (/ (* (- (+ x y) z) _G.tile-height) 2)]
+        iy (/ (* (- (+ x y) (/ z _G.block-height)) _G.tile-height) 2)]
     [ix iy]))
                                         ; a---b
                                         ; |   |

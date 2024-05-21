@@ -1,5 +1,7 @@
 (set _G.camera-speed 1)
 
+(set _G.block-height 0.5)
+
 (set _G.control-map {:left "left"
                   :right "right"
                   :up "up"
@@ -13,7 +15,7 @@
   (set _G.grid-size 16)
   (set _G.tile-width 32)
   (set _G.tile-height 16)
-  (set _G.gravity 0.2)
+  (set _G.gravity 0.1)
   (set _G.friction 0.5)
   (set _G.elasticity 0.8)
 (set _G.shot-meter-max-time 1.5)
@@ -117,69 +119,69 @@
                                                                    {:x 1 :y 1 :z 1}))
       :hole (_G.--tile-with-hole _G.vector.zero)
       :slope-in-dr (_G.--generate-hitboxes [{:a {:x 0 :y 0 :z 1}
-                                                    :b {:x 1 :y 1 :z 0}
+                                                    :b {:x 1 :y 1 :z (- 1 _G.block-height)}
                                                     :c {:x 0 :y 1 :z 1}}
                                                    {:a {:x 0 :y 0 :z 1}
                                                     :b {:x 1 :y 0 :z 1}
-                                                    :c {:x 1 :y 1 :z 0}}])
+                                                    :c {:x 1 :y 1 :z (- 1 _G.block-height)}}])
       :slope-in-dl (_G.--generate-hitboxes [{:a {:x 1 :y 0 :z 1}
-                                                    :b {:x 0 :y 1 :z 0}
+                                                    :b {:x 0 :y 1 :z (- 1 _G.block-height)}
                                                     :c {:x 0 :y 0 :z 1}}
                                                    {:a {:x 1 :y 0 :z 1}
                                                     :b {:x 1 :y 1 :z 1}
-                                                    :c {:x 0 :y 1 :z 0}}])
+                                                    :c {:x 0 :y 1 :z (- 1 _G.block-height)}}])
       :slope-in-ul (_G.--generate-hitboxes [{:a {:x 1 :y 1 :z 1}
-                                                    :b {:x 0 :y 0 :z 0}
+                                                    :b {:x 0 :y 0 :z (- 1 _G.block-height)}
                                                     :c {:x 1 :y 0 :z 1}}
                                                    {:a {:x 1 :y 1 :z 1}
                                                     :b {:x 0 :y 1 :z 1}
-                                                    :c {:x 0 :y 0 :z 0}}])
+                                                    :c {:x 0 :y 0 :z (- 1 _G.block-height)}}])
       :slope-in-ur (_G.--generate-hitboxes [{:a {:x 0 :y 1 :z 1}
-                                                    :b {:x 1 :y 0 :z 0}
+                                                    :b {:x 1 :y 0 :z (- 1 _G.block-height)}
                                                     :c {:x 1 :y 1 :z 1}}
                                                    {:a {:x 0 :y 1 :z 1}
                                                     :b {:x 0 :y 0 :z 1}
-                                                    :c {:x 1 :y 0 :z 0}}])
+                                                    :c {:x 1 :y 0 :z (- 1 _G.block-height)}}])
       :slope-r (_G.--generate-hitboxes (_G.geometry.rect-tris {:x 0 :y 0 :z 1}
-                                                                     {:x 1 :y 0 :z 0}
+                                                                     {:x 1 :y 0 :z (- 1 _G.block-height)}
                                                                      {:x 0 :y 1 :z 1}
-                                                                     {:x 1 :y 1 :z 0}))
+                                                                     {:x 1 :y 1 :z (- 1 _G.block-height)}))
       :slope-d (_G.--generate-hitboxes (_G.geometry.rect-tris {:x 0 :y 0 :z 1}
                                                                      {:x 1 :y 0 :z 1}
-                                                                     {:x 0 :y 1 :z 0}
-                                                                     {:x 1 :y 1 :z 0}))
-      :slope-l (_G.--generate-hitboxes (_G.geometry.rect-tris {:x 0 :y 0 :z 0}
+                                                                     {:x 0 :y 1 :z (- 1 _G.block-height)}
+                                                                     {:x 1 :y 1 :z (- 1 _G.block-height)}))
+      :slope-l (_G.--generate-hitboxes (_G.geometry.rect-tris {:x 0 :y 0 :z (- 1 _G.block-height)}
                                                                      {:x 1 :y 0 :z 1}
-                                                                     {:x 0 :y 1 :z 0}
+                                                                     {:x 0 :y 1 :z (- 1 _G.block-height)}
                                                                      {:x 1 :y 1 :z 1}))
-      :slope-u (_G.--generate-hitboxes (_G.geometry.rect-tris {:x 0 :y 0 :z 0}
-                                                                     {:x 1 :y 0 :z 0}
+      :slope-u (_G.--generate-hitboxes (_G.geometry.rect-tris {:x 0 :y 0 :z (- 1 _G.block-height)}
+                                                                     {:x 1 :y 0 :z (- 1 _G.block-height)}
                                                                      {:x 0 :y 1 :z 1}
                                                                      {:x 1 :y 1 :z 1}))
       :slope-out-dr (_G.--generate-hitboxes [{:a {:x 0 :y 0 :z 1}
-                                                     :b {:x 1 :y 1 :z 0}
-                                                     :c {:x 0 :y 1 :z 0}}
+                                                     :b {:x 1 :y 1 :z (- 1 _G.block-height)}
+                                                     :c {:x 0 :y 1 :z (- 1 _G.block-height)}}
                                                     {:a {:x 0 :y 0 :z 1}
-                                                     :b {:x 1 :y 0 :z 0}
-                                                     :c {:x 1 :y 1 :z 0}}])
+                                                     :b {:x 1 :y 0 :z (- 1 _G.block-height)}
+                                                     :c {:x 1 :y 1 :z (- 1 _G.block-height)}}])
       :slope-out-dl (_G.--generate-hitboxes [{:a {:x 1 :y 0 :z 1}
-                                                     :b {:x 0 :y 1 :z 0}
-                                                     :c {:x 0 :y 0 :z 0}}
+                                                     :b {:x 0 :y 1 :z (- 1 _G.block-height)}
+                                                     :c {:x 0 :y 0 :z (- 1 _G.block-height)}}
                                                     {:a {:x 1 :y 0 :z 1}
-                                                     :b {:x 1 :y 1 :z 0}
-                                                     :c {:x 0 :y 1 :z 0}}])
+                                                     :b {:x 1 :y 1 :z (- 1 _G.block-height)}
+                                                     :c {:x 0 :y 1 :z (- 1 _G.block-height)}}])
       :slope-out-ul (_G.--generate-hitboxes [{:a {:x 1 :y 1 :z 1}
-                                                     :b {:x 0 :y 0 :z 0}
-                                                     :c {:x 1 :y 0 :z 0}}
+                                                     :b {:x 0 :y 0 :z (- 1 _G.block-height)}
+                                                     :c {:x 1 :y 0 :z (- 1 _G.block-height)}}
                                                     {:a {:x 1 :y 1 :z 1}
-                                                     :b {:x 0 :y 1 :z 0}
-                                                     :c {:x 0 :y 0 :z 0}}])
+                                                     :b {:x 0 :y 1 :z (- 1 _G.block-height)}
+                                                     :c {:x 0 :y 0 :z (- 1 _G.block-height)}}])
       :slope-out-ur (_G.--generate-hitboxes [{:a {:x 0 :y 1 :z 1}
-                                                     :b {:x 1 :y 0 :z 0}
-                                                     :c {:x 1 :y 1 :z 0}}
+                                                     :b {:x 1 :y 0 :z (- 1 _G.block-height)}
+                                                     :c {:x 1 :y 1 :z (- 1 _G.block-height)}}
                                                     {:a {:x 0 :y 1 :z 1}
-                                                     :b {:x 0 :y 0 :z 0}
-                                                     :c {:x 1 :y 0 :z 0}}])
+                                                     :b {:x 0 :y 0 :z (- 1 _G.block-height)}
+                                                     :c {:x 1 :y 0 :z (- 1 _G.block-height)}}])
       })
 
 
