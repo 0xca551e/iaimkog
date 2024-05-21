@@ -1,27 +1,5 @@
 (require-macros :src.macros)
 
-(love.graphics.setDefaultFilter "nearest" "nearest")
-
-(require :src.vector)
-(require :src.physics)
-(require :src.geometry)
-(require :src.util)
-(require :src.level)
-(require :src.shot)
-
-(set _G.camera {:x 0 :y 0})
-
-(set _G.control-map {:left "left"
-                  :right "right"
-                  :up "up"
-                  :down "down"
-                  :fine-tune "lshift"
-                  :secondary "z"
-                  :primary "x"
-                  :tertiary "c"})
-
-(set _G.just-pressed {})
-
 (fn _G.triangle-oscillate [t]
   (if (<= t 0.5)
       (-> t (* 2))
@@ -40,7 +18,6 @@
         (print (if ok (fennel.view val) val)))
       (set lines []))))
 
-(set _G.ball-preview [])
 (fn _G.generate-ball-preview []
   (set _G.ball-preview [])
   (local dt (/ 1 60))
@@ -66,9 +43,27 @@
 
 (fn love.load []
   (love.window.setMode 720 480)
+  (love.graphics.setDefaultFilter "nearest" "nearest")
+
   ;; start a thread listening on stdin
   (: (love.thread.newThread "require('love.event')
 while 1 do love.event.push('stdin', io.read('*line')) end") :start)
+
+  (require :src.vector)
+  (require :src.geometry)
+  (require :src.util)
+
+  (require :src.config)
+
+  (require :src.physics)
+  (require :src.level)
+  (require :src.shot)
+
+  (set _G.camera {:x 0 :y 0})
+
+  (set _G.just-pressed {})
+
+  (set _G.ball-preview [])
 
   (set _G.paused false)
 
@@ -80,17 +75,6 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
              :variant :ball})
   (set _G.drawables [_G.ball])
 
-  (set _G.scale 3)
-  (set _G.grid-size 16)
-  (set _G.tile-width 32)
-  (set _G.tile-height 16)
-  (set _G.gravity 0.2)
-  (set _G.friction 0.5)
-  (set _G.elasticity 0.8)
-
-  ; (for [i -20 20 1]
-  ;   (for [j -20 20 1]
-  ;     (_G.level.make-tile :floor i j 0)))
   (_G.level.read-file-lines "levels/test-level2.txt")
   ;; NOTE: the level is static, so we don't need to sort every frame.
   ;; in a later version this might change
@@ -100,7 +84,6 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
                                   (- aabb-a.min.x aabb-b.min.x))))
   )
 
-;; TODO: replace integrate-ball if this works out
 (fn _G.integrate-ball2 [ball dt]
   (set ball.velocity (-> ball.velocity
                          (_G.vector.scale (/ 1 (+ 1 (* dt _G.friction))))))
@@ -110,33 +93,21 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
                          (_G.vector.add ball.position)))
   (_G.physics.collision-detection-and-resolution ball))
 
-(fn _G.manual-control-ball [dt]
-  (let [d (* 5 dt)
-        control _G.ball.velocity]
-    (when (love.keyboard.isDown "w") (-= control.y d))
-    (when (love.keyboard.isDown "a") (-= control.x d))
-    (when (love.keyboard.isDown "s") (+= control.y d))
-    (when (love.keyboard.isDown "d") (+= control.x d))
-    (when (love.keyboard.isDown "space") (+= control.z d))
-    (when (love.keyboard.isDown "lshift") (-= control.z d))))
+; (fn _G.manual-control-ball [dt]
+;   (let [d (* 5 dt)
+;         control _G.ball.velocity]
+;     (when (love.keyboard.isDown "w") (-= control.y d))
+;     (when (love.keyboard.isDown "a") (-= control.x d))
+;     (when (love.keyboard.isDown "s") (+= control.y d))
+;     (when (love.keyboard.isDown "d") (+= control.x d))
+;     (when (love.keyboard.isDown "space") (+= control.z d))
+;     (when (love.keyboard.isDown "lshift") (-= control.z d))))
 
 (fn love.update [dt]
   (when (not _G.paused)
     ;; (_G.integrate-ball dt)
     ;; (_G.manual-control-ball dt)
     (_G.shot.update dt)))
-
-;; (fn _G.project-point-plane [p n o]
-;;   (let [d (_G.physics.distance-plane-point-normal p n o)]
-;;     (-> n
-;;         (_G._G.vector.scale (- d))
-;;         (_G._G.vector.add p))))
-;; (comment
-;;  (_G.project-point-plane {:x 3 :y 3 :z 100} {:x 0 :y 0 :z 1} {:x 0 :y 0 :z 0})
-;;  (_G.project-point-plane {:x 3 :y 3 :z -100} {:x 0 :y 0 :z 1} {:x 0 :y 0 :z 0}))
-
-(set _G.bg1 (love.graphics.newImage "sprites/bg1.png"))
-(set _G.bg2 (love.graphics.newImage "sprites/bg2.png"))
 
 (fn love.draw []
   (love.graphics.scale _G.scale)

@@ -11,7 +11,6 @@
 (set _G.shot.meter 0) ; 0 to 1
 (set _G.shot.fly-meter 0) ; -1 to 1
 (set _G.shot.stillness-timer 0)
-(set _G.shot.meter-max-time 1.5)
 
 (set _G.shot.map {:roll {:up "fly" :down "roll2"}
                :roll2 {:up "roll" :down "roll2"}
@@ -114,12 +113,12 @@
                     (print fly-level))
     "charging" (do
                  (+= _G.shot.meter-timer dt)
-                 (if (> _G.shot.meter-timer (* _G.shot.meter-max-time 2))
+                 (if (> _G.shot.meter-timer (* _G.shot-meter-max-time 2))
                      (do
                        (set _G.shot.meter 0.1)
                        (_G.shot.apply))
                      (do
-                       (set _G.shot.meter (_G.triangle-oscillate (/ _G.shot.meter-timer (* _G.shot.meter-max-time 2))))
+                       (set _G.shot.meter (_G.triangle-oscillate (/ _G.shot.meter-timer (* _G.shot-meter-max-time 2))))
                        (print _G.shot.meter))))
     "moving" (do
                ;; (print "moving?")

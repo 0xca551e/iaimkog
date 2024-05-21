@@ -40,8 +40,6 @@
 
 (fn _G.geometry.extrude-line-to-rect [line offset flip]
   (let [a (. line (if flip 1 2))
-        ;; t (print "this")
-        ;; t (print a)
         b (. line (if flip 2 1))
         c (_G.vector.add a offset)
         d (_G.vector.add b offset)]
