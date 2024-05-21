@@ -28,7 +28,7 @@
                (let [shift-factor (if (love.keyboard.isDown (. _G.control-map :fine-tune)) 0.5 1)
                      speed (* shift-factor 3 dt)
                      spin-speed (* shift-factor 1 dt)
-                     camera-speed (* shift-factor 4)]
+                     camera-speed (* shift-factor (. _G.camera-speed))]
                  (if (love.keyboard.isDown (. _G.control-map :tertiary))
                      (do
                        (let [l (if (love.keyboard.isDown (. _G.control-map :left)) -1 0)

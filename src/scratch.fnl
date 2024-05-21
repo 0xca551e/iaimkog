@@ -4,7 +4,7 @@
                   :variant :ball})
     (table.insert _G.drawables _G.ball))
 
-(_G.camera-to-ball)
+(_G.camera.to-ball)
 
 (_G.generate-ball-preview)
 

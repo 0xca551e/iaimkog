@@ -25,17 +25,6 @@
 (comment
  (_G.generate-ball-preview))
 
-(fn _G.camera-to-ball []
-  (let [[bx by] (_G.geometry.to-isometric _G.ball.position.x _G.ball.position.y _G.ball.position.z)
-        width (/ (love.graphics.getWidth) _G.scale)
-        height (/ (love.graphics.getHeight) _G.scale)
-        x (- bx (/ width 2))
-        y (- by (/ height 2))]
-    (set _G.camera.x (- x))
-    (set _G.camera.y (- y))))
-(comment
- (_G.camera-to-ball))
-
 (fn love.load []
   (love.window.setMode 720 480)
   (love.graphics.setDefaultFilter "nearest" "nearest")
@@ -50,11 +39,10 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
   (require :src.config)
 
+  (require :src.camera)
   (require :src.physics)
   (require :src.level)
   (require :src.shot)
-
-  (set _G.camera {:x 0 :y 0})
 
   (set _G.just-pressed {})
 
@@ -108,7 +96,7 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (love.graphics.scale _G.scale)
   (love.graphics.draw _G.bg1)
   (when (= _G.shot.state "moving")
-    (_G.camera-to-ball))
+    (_G.camera.to-ball))
   (love.graphics.translate _G.camera.x _G.camera.y)
   (love.graphics.print (inspect _G.just-pressed))
 

@@ -1,3 +1,5 @@
+(set _G.camera-speed 1)
+
 (set _G.control-map {:left "left"
                   :right "right"
                   :up "up"
