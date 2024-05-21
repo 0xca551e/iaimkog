@@ -1,5 +1,7 @@
 (require-macros :macros)
 
+(love.graphics.setDefaultFilter "nearest" "nearest")
+
 (require :vector)
 (require :physics)
 (require :geometry)
@@ -63,52 +65,32 @@
  (_G.camera-to-ball))
 
 (fn love.load []
+  (love.window.setMode 720 480)
   ;; start a thread listening on stdin
   (: (love.thread.newThread "require('love.event')
 while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
-  (love.graphics.setDefaultFilter "nearest" "nearest")
   (set _G.paused false)
 
   (set _G.tris [])
 
-  (set _G.tiles [])
-  (set _G.slopes-dl [])
-  (set _G.hole-tiles [])
-
-  (set _G.test-tri {:a {:x 1 :y 0 :z 0}
-                 :b {:x 2 :y 1 :z 0}
-                 :c {:x 1 :y 1 :z 0}})
-  (set _G.ball {:position {:x 10.5 :y -4 :z 0.25}
+  (set _G.ball {:position {:x 10.5 :y -4 :z 2.25}
              :radius 0.25
-             :velocity {:x 0 :y 3 :z 0}})
+             :velocity {:x 0 :y 3 :z 0}
+             :variant :ball})
+  (set _G.drawables [_G.ball])
+
   (set _G.scale 3)
   (set _G.grid-size 16)
   (set _G.tile-width 32)
   (set _G.tile-height 16)
-  (set _G.sprite-sheet (love.graphics.newImage "Sprite-0001.png"))
-  (set _G.sprite-quads
-       {:ball (love.graphics.newQuad 0 64 17 17 (_G.sprite-sheet:getDimensions))
-        :floor (love.graphics.newQuad 0 0 (* _G.grid-size 2) (* _G.grid-size 2) (_G.sprite-sheet:getDimensions))
-        :slope-dl (love.graphics.newQuad 48 0 32 48 (_G.sprite-sheet:getDimensions))
-        :hole-tile (love.graphics.newQuad 0 32 (* _G.grid-size 2) (* _G.grid-size 2) (_G.sprite-sheet:getDimensions))})
-  (set _G.tile-hitboxes
-       {:floor (_G._G.level.generate-hitboxes (_G.geometry.rect-tris _G.vector.zero
-                                                            {:x 1 :y 0 :z 0}
-                                                            {:x 0 :y 1 :z 0}
-                                                            {:x 1 :y 1 :z 0}))
-        :slope-dl (_G._G.level.generate-hitboxes (_G.geometry.rect-tris _G.vector.zero
-                                                               {:x 1 :y 0 :z 1}
-                                                               {:x 0 :y 1 :z 0}
-                                                               {:x 1 :y 1 :z 0}))
-        :floor-with-hole (_G.level.tile-with-hole _G.vector.zero)})
   (set _G.gravity 0.2)
   (set _G.friction 0.5)
   (set _G.elasticity 0.8)
 
   (for [i -20 20 1]
     (for [j -20 20 1]
-      (_G.level.make-floor i j 0)))
+      (_G.level.make-tile :floor i j 0)))
   ;; NOTE: the level is static, so we don't need to sort every frame.
   ;; in a later version this might change
   (_G.util.insertion-sort-by-mut _G.tris (fn [a b]
@@ -158,14 +140,8 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
     (_G.camera-to-ball))
   (love.graphics.translate _G.camera.x _G.camera.y)
   (love.graphics.print (inspect _G.just-pressed))
-  
-  (each [_ v (ipairs _G.tiles)]
-    (_G.level.draw-floor v.x v.y v.z))
-  (each [_ v (ipairs _G.slopes-dl)]
-    (_G.level.draw-slopes v.x v.y v.z))
-  (each [_ v (ipairs _G.hole-tiles)]
-    (_G.level.draw-hole v.x v.y v.z))
-  (_G.level.draw-ball)
+
+  (_G.level.draw)
 
   (when (and (= _G.shot.state "aiming") (>= (# _G.ball-preview) 2))
     (_G.generate-ball-preview)
