@@ -1,13 +1,13 @@
-(require-macros :macros)
+(require-macros :src.macros)
 
 (love.graphics.setDefaultFilter "nearest" "nearest")
 
-(require :vector)
-(require :physics)
-(require :geometry)
-(require :util)
-(require :level)
-(require :shot)
+(require :src.vector)
+(require :src.physics)
+(require :src.geometry)
+(require :src.util)
+(require :src.level)
+(require :src.shot)
 
 (set _G.camera {:x 0 :y 0})
 
@@ -91,7 +91,7 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   ; (for [i -20 20 1]
   ;   (for [j -20 20 1]
   ;     (_G.level.make-tile :floor i j 0)))
-  (_G.level.read-file-lines "test-level2.txt")
+  (_G.level.read-file-lines "levels/test-level2.txt")
   ;; NOTE: the level is static, so we don't need to sort every frame.
   ;; in a later version this might change
   (_G.util.insertion-sort-by-mut _G.tris (fn [a b]
@@ -135,8 +135,8 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 ;;  (_G.project-point-plane {:x 3 :y 3 :z 100} {:x 0 :y 0 :z 1} {:x 0 :y 0 :z 0})
 ;;  (_G.project-point-plane {:x 3 :y 3 :z -100} {:x 0 :y 0 :z 1} {:x 0 :y 0 :z 0}))
 
-(set _G.bg1 (love.graphics.newImage "bg1.png"))
-(set _G.bg2 (love.graphics.newImage "bg2.png"))
+(set _G.bg1 (love.graphics.newImage "sprites/bg1.png"))
+(set _G.bg2 (love.graphics.newImage "sprites/bg2.png"))
 
 (fn love.draw []
   (love.graphics.scale _G.scale)

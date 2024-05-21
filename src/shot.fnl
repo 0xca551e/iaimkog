@@ -1,4 +1,4 @@
-(require-macros :macros)
+(require-macros :src.macros)
 
 (set _G.shot {})
 

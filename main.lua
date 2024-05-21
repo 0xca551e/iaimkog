@@ -1,4 +1,4 @@
-fennel = require("fennel")
+fennel = require("lib.fennel")
 debug.traceback = fennel.traceback
 
 table.insert(package.loaders, fennel.make_searcher({correlate=true}))
@@ -17,6 +17,6 @@ end
 table.insert(package.loaders, make_love_searcher(_G))
 table.insert(fennel["macro-searchers"], make_love_searcher("_COMPILER"))
 
-lume = require("lume")
-inspect = require("inspect")
-require("wrap.fnl")
+lume = require("lib.lume")
+inspect = require("lib.inspect")
+require("src.wrap")

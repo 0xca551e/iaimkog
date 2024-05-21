@@ -109,10 +109,10 @@
           (when tile
             (_G.level.make-tile tile (- (tonumber x)) (tonumber y) (tonumber z))))))))
 (comment
- (_G.level.read-file-lines "test-level.txt"))
+ (_G.level.read-file-lines "levels/test-level.txt"))
 
 
-(set _G.sprite-sheet (love.graphics.newImage "Sprite-0001.png"))
+(set _G.sprite-sheet (love.graphics.newImage "sprites/spritesheet.png"))
 
 (set _G.sprite-quads {})
 (-> [[:floor 0 0 32 32]
