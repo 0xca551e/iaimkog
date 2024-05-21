@@ -152,3 +152,11 @@
           (set ball.position (_G.vector.add ball.position collision.mtv))
           (set ball.velocity response))))))
 
+(fn _G.physics.integrate-ball [ball dt]
+  (set ball.velocity (-> ball.velocity
+                         (_G.vector.scale (/ 1 (+ 1 (* dt _G.friction))))))
+  (+= ball.velocity.z (- _G.gravity))
+  (set ball.position (-> ball.velocity
+                         (_G.vector.scale dt)
+                         (_G.vector.add ball.position)))
+  (_G.physics.collision-detection-and-resolution ball))

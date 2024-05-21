@@ -18,7 +18,7 @@
   (local dt (/ 1 60))
   (local preview-ball {:position _G.ball.position :velocity (_G.shot.velocity-vector _G.shot.type _G.shot.angle 1) :radius _G.ball.radius})
   (for [i 0 400 1]
-    (_G.integrate-ball2 preview-ball dt)
+    (_G.physics.integrate-ball preview-ball dt)
     (let [{:x x :y y :z z} preview-ball.position
           iso-coords (_G.geometry.to-isometric x y z)]
       (_G.util.concat-mut _G.ball-preview iso-coords))))
@@ -66,15 +66,6 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
                                       [tri-b aabb-b] b]
                                   (- aabb-a.min.x aabb-b.min.x))))
   )
-
-(fn _G.integrate-ball2 [ball dt]
-  (set ball.velocity (-> ball.velocity
-                         (_G.vector.scale (/ 1 (+ 1 (* dt _G.friction))))))
-  (+= ball.velocity.z (- _G.gravity))
-  (set ball.position (-> ball.velocity
-                         (_G.vector.scale dt)
-                         (_G.vector.add ball.position)))
-  (_G.physics.collision-detection-and-resolution ball))
 
 ; (fn _G.manual-control-ball [dt]
 ;   (let [d (* 5 dt)

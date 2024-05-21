@@ -122,7 +122,7 @@
                        (print _G.shot.meter))))
     "moving" (do
                ;; (print "moving?")
-               (_G.integrate-ball2 _G.ball dt)
+               (_G.physics.integrate-ball _G.ball dt)
                (when (< (_G.vector.length-sq _G.ball.velocity) 0.02)
                  (+= _G.shot.stillness-timer dt)
                  (when (> _G.shot.stillness-timer 3)
