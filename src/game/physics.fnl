@@ -111,7 +111,7 @@
   (each [_ tri (ipairs broad-phase-collisions)]
     ;; (print (inspect tri))
     (let [collision (_G.physics.collision-sphere-tri ball tri)]
-      (when (and collision (< (_G.vector.length collision.mtv) 0.5))
+      (when (and collision (< (_G.vector.length collision.mtv) _G.face-thickness))
         ;; (love.graphics.print "Collision!")
         (let [
               n (_G.vector.normalize collision.mtv)

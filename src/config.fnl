@@ -1,6 +1,7 @@
 (set _G.camera-speed 1)
 
 (set _G.block-height 0.5)
+(set _G.face-thickness 0.125)
 
 (set _G.control-map {:left "left"
                   :right "right"
