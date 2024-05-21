@@ -107,7 +107,7 @@
               color-name (. _G.level.color-names hex)
               tile (. _G.level.color-tile-map color-name)]
           (when tile
-            (_G.level.make-tile tile (- x) y z)))))))
+            (_G.level.make-tile tile (- (tonumber x)) (tonumber y) (tonumber z))))))))
 (comment
  (_G.level.read-file-lines "test-level.txt"))
 
