@@ -1,10 +1,5 @@
 (require-macros :src.macros)
 
-(fn _G.triangle-oscillate [t]
-  (if (<= t 0.5)
-      (-> t (* 2))
-      (-> t (- 1) (* (- 1)) (* 2))))
-
 (var lines [])
 (fn love.handlers.stdin [line]
   ;; evaluate lines read from stdin as fennel code

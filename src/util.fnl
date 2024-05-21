@@ -100,3 +100,8 @@
                    {:min 13 :max 113 }
                    {:min 15 :max 115 }]
                      5 111 [:min] [:max]))
+
+(fn _G.util.triangle-oscillate [t]
+  (if (<= t 0.5)
+      (-> t (* 2))
+      (-> t (- 1) (* (- 1)) (* 2))))

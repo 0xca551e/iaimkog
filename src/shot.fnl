@@ -108,7 +108,7 @@
   (case _G.shot.state
     "preshot-fly" (let [time (love.timer.getTime)
                         speed 1
-                        fly-level (-> (_G.triangle-oscillate (% (* time speed) 1)) (* 2) (- 1))]
+                        fly-level (-> (_G.util.triangle-oscillate (% (* time speed) 1)) (* 2) (- 1))]
                     (set _G.shot.fly-meter fly-level)
                     (print fly-level))
     "charging" (do
@@ -118,7 +118,7 @@
                        (set _G.shot.meter 0.1)
                        (_G.shot.apply))
                      (do
-                       (set _G.shot.meter (_G.triangle-oscillate (/ _G.shot.meter-timer (* _G.shot-meter-max-time 2))))
+                       (set _G.shot.meter (_G.util.triangle-oscillate (/ _G.shot.meter-timer (* _G.shot-meter-max-time 2))))
                        (print _G.shot.meter))))
     "moving" (do
                ;; (print "moving?")
