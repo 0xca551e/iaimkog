@@ -9,8 +9,8 @@
   ;; NOTE: the ball will move around affecting z index
   ;; since tables are references, we just make the ball itself a drawable in here
   (_G.util.insertion-sort-by-mut _G.drawables (fn [a b]
-                                                (let [a-score (+ a.position.x a.position.y a.position.z)
-                                                      b-score (+ b.position.x b.position.y b.position.z)]
+                                                (let [a-score (+ a.position.x a.position.y (* a.position.z 16))
+                                                      b-score (+ b.position.x b.position.y (* b.position.z 16))]
                                                   (- a-score b-score))))
   (each [_ v (ipairs _G.drawables)]
     (let [[ix iy] (_G.geometry.to-isometric v.position.x v.position.y v.position.z)]
