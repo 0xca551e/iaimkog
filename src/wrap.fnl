@@ -27,11 +27,11 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
   (require :src.config)
 
-  (require :src.camera)
-  (require :src.physics)
-  (require :src.level)
-  (require :src.shot)
-  (require :src.ball-preview)
+  (require :src.game.camera)
+  (require :src.game.physics)
+  (require :src.game.level)
+  (require :src.game.shot)
+  (require :src.game.ball-preview)
 
   (set _G.just-pressed {})
 
