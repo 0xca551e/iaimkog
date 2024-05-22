@@ -97,7 +97,6 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
   (_G.level.draw)
 
-  (_G.generate-ball-preview)
   (love.graphics.setColor 1 1 1 1)
   (when (and (= _G.shot.state "aiming") (>= (# _G.ball-preview) 2))
     (let [offset (-> (love.timer.getTime)
@@ -110,8 +109,9 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
         (when (>= (# v) 4)
           (love.graphics.line (unpack v))))))
 
-  (when (= _G.shot.state "moving")
+  (if (not= _G.shot.state "aiming")
     (_G.camera.to-ball))
+  (_G.camera.lerp-to-target (love.timer.getDelta))
 
   (love.graphics.setCanvas)
   (love.graphics.origin)

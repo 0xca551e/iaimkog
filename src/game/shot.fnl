@@ -20,13 +20,18 @@
   (set _G.shot.type (. _G.shot.map _G.shot.type d))
   (when (not= _G.shot.type "fly")
     (set _G.shot.spin-x 0)
-    (set _G.shot.spin-y 0)))
+    (set _G.shot.spin-y 0))
+  
+  (_G.generate-ball-preview)
+  (_G.camera.to-preview-tail)
+
+  )
 
 (fn _G.shot.handle-controls [dt]
   (case _G.shot.state
     "aiming" (do
                (let [shift-factor (if (love.keyboard.isDown (. _G.control-map :fine-tune)) 0.5 1)
-                     speed (* shift-factor 3 dt)
+                     speed (* shift-factor _G.rotation-speed dt)
                      spin-speed (* shift-factor 1 dt)
                      camera-speed (* shift-factor (. _G.camera-speed))]
                  (if (love.keyboard.isDown (. _G.control-map :tertiary))
@@ -37,8 +42,10 @@
                              d (if (love.keyboard.isDown (. _G.control-map :down)) 1 0)
                              dx (* (+ l r) camera-speed)
                              dy (* (+ u d) camera-speed)]
-                         (-= _G.camera.x dx)
-                         (-= _G.camera.y dy)))
+
+                         (_G.camera.set-target (- _G.camera.target.to.x dx) (- _G.camera.target.to.y dy) 0 _G.linear)
+                         
+                         ))
                      (love.keyboard.isDown (. _G.control-map :secondary))
                      (do
                        (when (love.keyboard.isDown (. _G.control-map :left))
@@ -52,10 +59,20 @@
                      (do
                        (when (love.keyboard.isDown (. _G.control-map :left))
                          (+= _G.shot.angle speed)
-                         (%= _G.shot.angle (* 2 math.pi)))
+                         (%= _G.shot.angle (* 2 math.pi))
+
+                         (_G.generate-ball-preview)
+                         (_G.camera.to-preview-tail)
+                         
+                         )
                        (when (love.keyboard.isDown (. _G.control-map :right))
                          (-= _G.shot.angle speed)
-                         (%= _G.shot.angle (* 2 math.pi)))
+                         (%= _G.shot.angle (* 2 math.pi))
+
+                         (_G.generate-ball-preview)
+                         (_G.camera.to-preview-tail)
+
+                         )
                        (when (. _G.just-pressed (. _G.control-map :up))
                          (_G.shot.change-type "up"))
                        (when (. _G.just-pressed (. _G.control-map :down))
@@ -101,7 +118,9 @@
   (set _G.shot.meter-timer 0)
   (set _G.shot.meter 0)
   (set _G.shot.fly-meter 0)
-  (set _G.shot.stillness-timer 0))
+  (set _G.shot.stillness-timer 0)
+  (_G.generate-ball-preview)
+  (_G.camera.to-preview-tail))
 
 (fn _G.shot.update [dt]
   (_G.shot.handle-controls dt)

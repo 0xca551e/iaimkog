@@ -1,4 +1,5 @@
-(set _G.camera-speed 3)
+(set _G.rotation-speed 0.5)
+(set _G.camera-speed 1.5)
 
 (set _G.block-height 0.5)
 (set _G.face-thickness 0.125)
