@@ -78,7 +78,7 @@
 (fn _G.--tile-with-hole []
   (let [position {:x 0 :y 0 :z 0}
         ur (_G.vector.add position {:x 1 :y 0 :z 1})
-        ul position
+        ul {:x 0 :y 0 :z 1}
         dl (_G.vector.add position {:x 0 :y 1 :z 1})
         dr (_G.vector.add position {:x 1 :y 1 :z 1})
         r (_G.vector.add position {:x 1 :y 0.5 :z 1})
@@ -112,13 +112,19 @@
                                              (_G.geometry.prepend-point r)
                                              (_G.geometry.append-point d)))
 
+        r-tri [{:a ur :b dr :c {:x 0.8 :y 0.5 :z 0}}]
+        d-tri [{:a dr :b dl :c {:x 0.5 :y 0.8 :z 0}}]
+        l-tri [{:a dl :b ul :c {:x 0.2 :y 0.5 :z 0}}]
+        u-tri [{:a ul :b ur :c {:x 0.5 :y 0.2 :z 0}}]
+
         hole-tris (-> circle-lines
                       (lume.map (fn [x]
                                   (_G.geometry.extrude-line-to-rect x {:x 0 :y 0 :z -0.5} true)))
                       (_G.util.flatten))
 
         ]
-    [(lume.concat ur-tris ul-tris dl-tris dr-tris hole-tris)
+        (print (inspect ul-tris))
+    [(lume.concat ur-tris ul-tris dl-tris dr-tris r-tri d-tri l-tri u-tri hole-tris)
     ;  (lume.concat square-lines circle-lines)
     ;  (lume.concat square-verts circle-verts)
      ]))

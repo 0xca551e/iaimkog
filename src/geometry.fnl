@@ -33,10 +33,12 @@
  (_G.geometry.close-loop (window-by-2 [{:x 0 :y 0 :z 0} {:x 1 :y 1 :z 0} {:x 0 :y 1 :z 0}])))
 
 
-(fn _G.geometry.fan-tris [base segments]
+(fn _G.geometry.fan-tris [base segments reverse]
   (lume.map segments (fn [x]
                        ;; (print (inspect (. segments 1)))
-                       {:a base :b (. x 2) :c (. x 1)})))
+                       (if reverse
+                        {:a base :b (. x 1) :c (. x 2)}
+                        {:a base :b (. x 2) :c (. x 1)}))))
 
 (fn _G.geometry.extrude-line-to-rect [line offset flip]
   (let [a (. line (if flip 1 2))
