@@ -36,7 +36,6 @@
      [:slope-out-dl 2 1 32 32]
      [:slope-out-ul 3 1 32 32]
      [:slope-out-ur 4 1 32 32]
-     [:ball 0 2 17 17]
      [:slope-in-dr 1 2 32 32]
      [:slope-in-dl 2 2 32 32]
      [:slope-in-ul 3 2 32 32]
@@ -49,6 +48,19 @@
                        sw
                        sh
                        (_G.sprite-sheet:getDimensions))))))
+
+(set _G.animated-sprite-quads {})
+(-> [[:ball 0 3 17 17 4]]
+    (lume.each (fn [[id gx gy sw sh f]]
+                 (tset _G.animated-sprite-quads id
+                       (-> (_G.util.range 1 f 1)
+                           (lume.map (fn [f]
+                                       (love.graphics.newQuad
+                                        (+ (* 32 gx) (* sw (- f 1)))
+                                        (* 32 gy)
+                                        sw
+                                        sh
+                                        (_G.sprite-sheet:getDimensions)))))))))
 
 (fn _G.--generate-hitboxes [hitbox-tris]
   [hitbox-tris

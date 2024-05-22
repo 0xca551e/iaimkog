@@ -1,3 +1,5 @@
+(require-macros :src.macros)
+
 (set _G.level {})
 
 (fn _G.level.make-tile [variant x y z]
@@ -13,8 +15,21 @@
                                                       b-score (+ b.position.x b.position.y (* b.position.z 16))]
                                                   (- a-score b-score))))
   (each [_ v (ipairs _G.drawables)]
-    (let [[ix iy] (_G.geometry.to-isometric v.position.x v.position.y v.position.z)]
-      (love.graphics.draw _G.sprite-sheet (. _G.sprite-quads v.variant) (- ix _G.grid-size) iy))))
+    (let [[ix iy] (_G.geometry.to-isometric v.position.x v.position.y v.position.z)
+          x (- ix _G.grid-size)
+          y iy]
+      (if v.animation
+          (do
+            (+= v.animation.timer (love.timer.getDelta))
+            (let [animation-quads (. _G.animated-sprite-quads v.variant)
+                  current-frame (-> v.animation.timer
+                                    (/ v.animation.frame-duration)
+                                    (% (# animation-quads))
+                                    (math.floor)
+                                    (+ 1))
+                  current-quad (. animation-quads current-frame)]
+              (love.graphics.draw _G.sprite-sheet current-quad x y)))
+          (love.graphics.draw _G.sprite-sheet (. _G.sprite-quads v.variant) x y)))))
 
 (fn _G.trim-whitespace [str] (str:gsub "^%s*(.-)%s*$" "%1"))
 (comment

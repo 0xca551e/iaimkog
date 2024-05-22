@@ -9,7 +9,7 @@
         formatted-line (line:gsub ";END%s*$" "")]
     (table.insert lines formatted-line)
     (when is-end-statement
-      (let [(ok val) (pcall fennel.eval (.. "(require-macros :macros)\n" (table.concat lines "\n")))]
+      (let [(ok val) (pcall fennel.eval (.. "(require-macros :src.macros)\n" (table.concat lines "\n")))]
         (print (if ok (fennel.view val) val)))
       (set lines []))))
 
@@ -44,7 +44,9 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (set _G.ball {:position {:x -6 :y 5 :z 1.25}
              :radius 0.25
              :velocity {:x 0 :y 0 :z 0}
-             :variant :ball})
+             :variant :ball
+             :animation {:timer 0
+                         :frame-duration (/ 1 6)}})
   (set _G.drawables [_G.ball])
 
   (_G.level.read-file-lines "levels/updown-level.txt")
