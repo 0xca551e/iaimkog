@@ -100,7 +100,15 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (_G.generate-ball-preview)
   (love.graphics.setColor 1 1 1 1)
   (when (and (= _G.shot.state "aiming") (>= (# _G.ball-preview) 2))
-    (love.graphics.line (unpack _G.ball-preview)))
+    (let [offset (-> (love.timer.getTime)
+                     (* 20)
+                     (% 10)
+                     (math.floor)
+                     (* 2))
+          dashed-lines (_G.util.segments _G.ball-preview 10 10 offset)]
+      (each [_ v (ipairs dashed-lines)]
+        (when (>= (# v) 4)
+          (love.graphics.line (unpack v))))))
 
   (when (= _G.shot.state "moving")
     (_G.camera.to-ball))

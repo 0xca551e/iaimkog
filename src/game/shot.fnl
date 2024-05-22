@@ -80,8 +80,8 @@
     "moving" (do (todo!))))
 
 (fn _G.shot.velocity-vector [shot-type angle meter]
-  (let [base-vector (if (= shot-type "fly") {:x 1 :y 0 :z 3} {:x 1 :y 0 :z 0})
-        base-strength (if (= shot-type "fly") 12 12)
+  (let [base-vector (if (= shot-type "fly") (_G.vector.normalize {:x 1 :y 0 :z 1}) {:x 1 :y 0 :z 0})
+        base-strength (if (= shot-type "fly") _G.base-fly-strength _G.base-strength)
         velocity (-> base-vector
                      (_G.vector.rotate-by-axis-angle {:x 0 :y 0 :z 1} angle)
                      (_G.vector.scale (* meter base-strength)))]

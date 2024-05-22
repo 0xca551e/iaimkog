@@ -105,3 +105,23 @@
   (if (<= t 0.5)
       (-> t (* 2))
       (-> t (- 1) (* (- 1)) (* 2))))
+
+(fn _G.util.segments [tbl len gap-length offset]
+  (var i (+ offset 1))
+  (local result {})
+  (when (< gap-length offset)
+    (table.insert result
+                  (lume.slice tbl 1
+                              (- offset gap-length))))
+  (while (<= i (length tbl))
+    (local segment {})
+    (for [j i (- (+ i len) 1)]
+      (when (<= j (length tbl))
+        (table.insert segment (. tbl j))))
+    (table.insert result segment)
+    (set i (+ (+ i len) gap-length)))
+  result)
+
+(comment
+ (let (tbl [1 2 3 4 5 6 7 8 9 10])
+   (segments tbl 2 1 1)))

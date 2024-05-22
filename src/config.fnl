@@ -20,6 +20,8 @@
   (set _G.friction 0.5)
   (set _G.elasticity 0.8)
 (set _G.shot-meter-max-time 1.5)
+(set _G.base-strength 10)
+(set _G.base-fly-strength 10)
 
 (set _G.sprite-sheet (love.graphics.newImage "sprites/spritesheet.png"))
 (set _G.bg1 (love.graphics.newImage "sprites/bg1.png"))
