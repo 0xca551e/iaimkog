@@ -115,7 +115,7 @@
                  (+= _G.shot.meter-timer dt)
                  (if (> _G.shot.meter-timer (* _G.shot-meter-max-time 2))
                      (do
-                       (set _G.shot.meter 0.1)
+                       (set _G.shot.meter 1)
                        (_G.shot.apply))
                      (do
                        (set _G.shot.meter (_G.util.triangle-oscillate (/ _G.shot.meter-timer (* _G.shot-meter-max-time 2))))

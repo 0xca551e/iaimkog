@@ -115,7 +115,7 @@
         ;; (love.graphics.print "Collision!")
         (let [
               n (_G.vector.normalize collision.mtv)
-              d (_G.vector.dot _G.ball.velocity n)
+              d (_G.vector.dot ball.velocity n)
               perpendicular-component (_G.vector.scale n d)
               parallel-component (_G.vector.subtract ball.velocity perpendicular-component)
               response (_G.vector.add
@@ -129,7 +129,7 @@
         ;; (love.graphics.print "Collision!")
         (let [
               n (_G.vector.normalize collision.mtv)
-              d (_G.vector.dot _G.ball.velocity n)
+              d (_G.vector.dot ball.velocity n)
               perpendicular-component (_G.vector.scale n d)
               parallel-component (_G.vector.subtract ball.velocity perpendicular-component)
               response (_G.vector.add
@@ -143,7 +143,7 @@
         ;; (love.graphics.print "Collision!")
         (let [
               n (_G.vector.normalize collision.mtv)
-              d (_G.vector.dot _G.ball.velocity n)
+              d (_G.vector.dot ball.velocity n)
               perpendicular-component (_G.vector.scale n d)
               parallel-component (_G.vector.subtract ball.velocity perpendicular-component)
               response (_G.vector.add

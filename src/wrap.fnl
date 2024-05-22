@@ -86,8 +86,8 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
   (_G.level.draw)
 
+  (_G.generate-ball-preview)
   (when (and (= _G.shot.state "aiming") (>= (# _G.ball-preview) 2))
-    (_G.generate-ball-preview)
     (love.graphics.line (unpack _G.ball-preview)))
 
   (love.graphics.origin)
