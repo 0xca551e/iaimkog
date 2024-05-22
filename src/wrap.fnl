@@ -46,7 +46,8 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
              :velocity {:x 0 :y 0 :z 0}
              :variant :ball
              :animation {:timer 0
-                         :frame-duration (/ 1 6)}})
+                         :frame-duration (/ 1 6)}
+             :draw-offset {:x 8 :y 6 :z -0.75}})
   (set _G.drawables [_G.ball])
 
   (_G.level.read-file-lines "levels/updown-level.txt")

@@ -50,7 +50,7 @@
                        (_G.sprite-sheet:getDimensions))))))
 
 (set _G.animated-sprite-quads {})
-(-> [[:ball 0 3 17 17 4]]
+(-> [[:ball 0 3 18 18 4]]
     (lume.each (fn [[id gx gy sw sh f]]
                  (tset _G.animated-sprite-quads id
                        (-> (_G.util.range 1 f 1)
@@ -126,10 +126,27 @@
 (comment (_G.--tile-with-hole _G.vector.zero))
 
 (set _G.tile-hitboxes
-     {:floor (_G.--generate-hitboxes (_G.geometry.rect-tris {:x 0 :y 0 :z 1}
-                                                                   {:x 1 :y 0 :z 1}
-                                                                   {:x 0 :y 1 :z 1}
-                                                                   {:x 1 :y 1 :z 1}))
+     {:floor (_G.--generate-hitboxes (-> [(_G.geometry.rect-tris {:x 0 :y 0 :z 1}
+                                                                 {:x 1 :y 0 :z 1}
+                                                                 {:x 0 :y 1 :z 1}
+                                                                 {:x 1 :y 1 :z 1})
+                                          (_G.geometry.rect-tris {:x 1 :y 0 :z 1}
+                                                                 {:x 0 :y 0 :z 1}
+                                                                 {:x 1 :y 0 :z (- 1 _G.block-height)}
+                                                                 {:x 0 :y 1 :z (- 1 _G.block-height)})
+                                          (_G.geometry.rect-tris {:x 1 :y 1 :z 1}
+                                                                 {:x 1 :y 0 :z 1}
+                                                                 {:x 1 :y 1 :z (- 1 _G.block-height)}
+                                                                 {:x 1 :y 0 :z (- 1 _G.block-height)})
+                                          (_G.geometry.rect-tris {:x 0 :y 1 :z 1}
+                                                                 {:x 1 :y 1 :z 1}
+                                                                 {:x 0 :y 1 :z (- 1 _G.block-height)}
+                                                                 {:x 1 :y 1 :z (- 1 _G.block-height)})
+                                          (_G.geometry.rect-tris {:x 0 :y 0 :z 1}
+                                                                 {:x 0 :y 1 :z 1}
+                                                                 {:x 0 :y 0 :z (- 1 _G.block-height)}
+                                                                 {:x 0 :y 1 :z (- 1 _G.block-height)})]
+                                         (util.flatten)))
       :hole (_G.--tile-with-hole _G.vector.zero)
       :slope-in-dr (_G.--generate-hitboxes [{:a {:x 0 :y 0 :z 1}
                                                     :b {:x 1 :y 1 :z (- 1 _G.block-height)}
