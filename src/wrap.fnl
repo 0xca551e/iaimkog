@@ -16,6 +16,7 @@
 (fn love.load []
   (love.window.setMode 720 480)
   (love.graphics.setDefaultFilter "nearest" "nearest")
+  (love.graphics.setLineStyle "rough")
 
   ;; start a thread listening on stdin
   (: (love.thread.newThread "require('love.event')
@@ -39,6 +40,7 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
   (set _G.just-pressed {})
 
+  (set _G.ball-preview-canvas (love.graphics.newCanvas 240 160))
   (set _G.ball-preview [])
 
   (set _G.paused false)
@@ -86,20 +88,28 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
     (lume.clear _G.just-pressed)))
 
 (fn love.draw []
-  (love.graphics.scale _G.scale)
+  (love.graphics.setCanvas _G.ball-preview-canvas)
+
+  (love.graphics.clear 0 0 0 0)
   (love.graphics.draw _G.bg1)
-  (when (= _G.shot.state "moving")
-    (_G.camera.to-ball))
+
   (love.graphics.translate _G.camera.x _G.camera.y)
-  ; (love.graphics.print (inspect _G.just-pressed))
 
   (_G.level.draw)
 
   (_G.generate-ball-preview)
+  (love.graphics.setColor 1 1 1 1)
   (when (and (= _G.shot.state "aiming") (>= (# _G.ball-preview) 2))
     (love.graphics.line (unpack _G.ball-preview)))
 
+  (when (= _G.shot.state "moving")
+    (_G.camera.to-ball))
+
+  (love.graphics.setCanvas)
   (love.graphics.origin)
+
+  (love.graphics.draw _G.ball-preview-canvas 0 0 0 _G.scale _G.scale)
+
   (_G.shot.draw (love.timer.getDelta)))
 
 (fn love.keypressed [_key scancode _isrepeat]
