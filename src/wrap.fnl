@@ -33,6 +33,10 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (require :src.game.shot)
   (require :src.game.ball-preview)
 
+  (set _G.dt-acc 0)
+  (set _G.timestep (/ 1 60))
+  (set _G.max-steps-per-frame 5)
+
   (set _G.just-pressed {})
 
   (set _G.ball-preview [])
@@ -70,11 +74,16 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
     (when (love.keyboard.isDown "lshift") (-= control.z d))))
 
 (fn love.update [dt]
-  (when (not _G.paused)
-    ;; (_G.integrate-ball dt)
-    (_G.manual-control-ball dt)
-    (_G.shot.update dt)
-    ))
+  (+= _G.dt-acc dt)
+  (var steps-left _G.max-steps-per-frame)
+  (while (and (> _G.dt-acc _G.timestep) (not= steps-left 0))
+    (-= _G.dt-acc dt)
+    (-= steps-left 1)
+    (when (not _G.paused)
+      ;; (_G.integrate-ball dt)
+      (_G.manual-control-ball _G.timestep)
+      (_G.shot.update _G.timestep))
+    (lume.clear _G.just-pressed)))
 
 (fn love.draw []
   (love.graphics.scale _G.scale)
@@ -82,7 +91,7 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (when (= _G.shot.state "moving")
     (_G.camera.to-ball))
   (love.graphics.translate _G.camera.x _G.camera.y)
-  (love.graphics.print (inspect _G.just-pressed))
+  ; (love.graphics.print (inspect _G.just-pressed))
 
   (_G.level.draw)
 
@@ -91,9 +100,7 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
     (love.graphics.line (unpack _G.ball-preview)))
 
   (love.graphics.origin)
-  (_G.shot.draw (love.timer.getDelta))
-  
-  (lume.clear _G.just-pressed))
+  (_G.shot.draw (love.timer.getDelta)))
 
 (fn love.keypressed [_key scancode _isrepeat]
   ;; (print scancode)
