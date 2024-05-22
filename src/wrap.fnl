@@ -59,21 +59,22 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
                                   (- aabb-a.min.x aabb-b.min.x))))
   )
 
-; (fn _G.manual-control-ball [dt]
-;   (let [d (* 5 dt)
-;         control _G.ball.velocity]
-;     (when (love.keyboard.isDown "w") (-= control.y d))
-;     (when (love.keyboard.isDown "a") (-= control.x d))
-;     (when (love.keyboard.isDown "s") (+= control.y d))
-;     (when (love.keyboard.isDown "d") (+= control.x d))
-;     (when (love.keyboard.isDown "space") (+= control.z d))
-;     (when (love.keyboard.isDown "lshift") (-= control.z d))))
+(fn _G.manual-control-ball [dt]
+  (let [d (* 5 dt)
+        control _G.ball.velocity]
+    (when (love.keyboard.isDown "w") (-= control.x d) (-= control.y d))
+    (when (love.keyboard.isDown "a") (-= control.x d) (+= control.y d))
+    (when (love.keyboard.isDown "s") (+= control.x d) (+= control.y d))
+    (when (love.keyboard.isDown "d") (+= control.x d) (-= control.y d))
+    (when (love.keyboard.isDown "space") (+= control.z d))
+    (when (love.keyboard.isDown "lshift") (-= control.z d))))
 
 (fn love.update [dt]
   (when (not _G.paused)
     ;; (_G.integrate-ball dt)
-    ;; (_G.manual-control-ball dt)
-    (_G.shot.update dt)))
+    (_G.manual-control-ball dt)
+    (_G.shot.update dt)
+    ))
 
 (fn love.draw []
   (love.graphics.scale _G.scale)

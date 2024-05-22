@@ -76,7 +76,7 @@
        (_G.util.flatten))])
 
 (fn _G.--tile-with-hole []
-  (let [position {:x 0 :y 0 :z 1}
+  (let [position {:x 0 :y 0 :z 0}
         ur (_G.vector.add position {:x 1 :y 0 :z 1})
         ul position
         dl (_G.vector.add position {:x 0 :y 1 :z 1})
@@ -119,11 +119,11 @@
 
         ]
     [(lume.concat ur-tris ul-tris dl-tris dr-tris hole-tris)
-     (lume.concat square-lines circle-lines)
-     (lume.concat square-verts circle-verts)
+    ;  (lume.concat square-lines circle-lines)
+    ;  (lume.concat square-verts circle-verts)
      ]))
 
-(comment (_G.--tile-with-hole _G.vector.zero))
+(comment (_G.--tile-with-hole))
 
 (set _G.tile-hitboxes
      {:floor (_G.--generate-hitboxes (-> [(_G.geometry.rect-tris {:x 0 :y 0 :z 1}
