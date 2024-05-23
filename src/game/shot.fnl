@@ -62,14 +62,14 @@
                          (_G.camera.to-preview-tail)
                          
                          )
-                       (when (love.keyboard.isDown (. _G.control-map :down))
+                       (when (and (= _G.shot.type "fly") (love.keyboard.isDown (. _G.control-map :down)))
                          (set _G.shot.spin-y (lume.clamp (- _G.shot.spin-y spin-speed) (- 1) 1))
                          
                          (_G.generate-ball-preview)
                          (_G.camera.to-preview-tail)
 
                          )
-                       (when (love.keyboard.isDown (. _G.control-map :up))
+                       (when (and (= _G.shot.type "fly") (love.keyboard.isDown (. _G.control-map :up)))
                          (set _G.shot.spin-y (lume.clamp (+ _G.shot.spin-y spin-speed) (- 1) 1))
                          
                          (_G.generate-ball-preview)
@@ -193,6 +193,41 @@
                  (_G.shot.conclude false)))))
 
 (fn _G.shot.draw []
-  (love.graphics.print
-   (table.concat [_G.shot.state _G.shot.angle _G.shot.type _G.shot.state _G.shot.spin-x _G.shot.spin-y] "\n")
-   10 10))
+  ; (love.graphics.print
+  ;  (table.concat [_G.shot.state _G.shot.angle _G.shot.type _G.shot.state _G.shot.spin-x _G.shot.spin-y] "\n")
+  ;  10 10)
+  (when (or (= _G.shot.state "preshot-fly")
+          (= _G.shot-state "preshot-normal")
+          (= _G.shot-state "charging")
+          (and (= _G.shot.state "aiming") (love.keyboard.isDown (. _G.control-map :secondary))))
+    (let [overlay-color [0 0 0 0.5]
+          overlay-x 0
+          overlay-y 0
+          overlay-width 50
+          overlay-height 50
+          ball-stroke-color [0 0 0 1]
+          ball-line-width 5
+          ball-fill-color [1 0 0 1]
+          ball-center-x (+ overlay-x (/ overlay-width 2))
+          ball-center-y (+ overlay-y (/ overlay-height 2))
+          ball-radius 15
+          spin-line-color [1 1 1 1]
+          spin-line-width 1
+          topspin-line-x1 (/ (- overlay-width ball-radius ball-radius 10) 2)
+          topspin-line-x2 (+ topspin-line-x1 ball-radius ball-radius 10)
+          topspin-line-y (- ball-center-y (* _G.shot.spin-y ball-radius))
+          sidespin-line-y1 (/ (- overlay-height ball-radius ball-radius 10) 2)
+          sidespin-line-y2 (+ sidespin-line-y1 ball-radius ball-radius 10)
+          sidespin-line-x (+ ball-center-x (* _G.shot.spin-x ball-radius))]
+      (love.graphics.setColor (unpack overlay-color))
+      (love.graphics.rectangle "fill" overlay-x overlay-y overlay-width overlay-height)
+      (love.graphics.setColor (unpack ball-fill-color))
+      (love.graphics.circle "fill" ball-center-x ball-center-y ball-radius)
+      (love.graphics.setColor (unpack ball-stroke-color))
+      (love.graphics.setLineWidth ball-line-width)
+      (love.graphics.circle "line" ball-center-x ball-center-y ball-radius)
+      (love.graphics.setColor (unpack spin-line-color))
+      (love.graphics.setLineWidth spin-line-width)
+      (love.graphics.line topspin-line-x1 topspin-line-y topspin-line-x2 topspin-line-y)
+      (love.graphics.line sidespin-line-x sidespin-line-y1 sidespin-line-x sidespin-line-y2)
+      (love.graphics.setColor 1 1 1 1))))

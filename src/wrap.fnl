@@ -126,12 +126,12 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
     (_G.camera.to-ball))
   (_G.camera.lerp-to-target (love.timer.getDelta))
 
-  (love.graphics.setCanvas)
   (love.graphics.origin)
+  (_G.shot.draw (love.timer.getDelta))
 
-  (love.graphics.draw _G.ball-preview-canvas 0 0 0 _G.scale _G.scale)
+  (love.graphics.setCanvas)
 
-  (_G.shot.draw (love.timer.getDelta)))
+  (love.graphics.draw _G.ball-preview-canvas 0 0 0 _G.scale _G.scale))
 
 (fn love.keypressed [_key scancode _isrepeat]
   ;; (print scancode)
