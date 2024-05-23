@@ -41,6 +41,8 @@
 (set _G.fly-meter-sound (love.audio.newSource (_G.util.make-sine-wave 44100 1 440 0.5)))
 (_G.fly-meter-sound:setLooping true)
 
+(set _G.max-angular-sidespin 0.02)
+
 (set _G.sprite-quads {})
 (-> [[:floor 0 0 32 32]
      [:slope-r 1 0 32 32]

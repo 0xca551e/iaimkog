@@ -57,7 +57,8 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
                          :frame-duration (/ 1 6)}
              :draw-offset {:x 8 :y 6 :z -0.75}
              :collided false
-             :just-collided false})
+             :just-collided false
+             :spin-x 0})
   (tset _G.ball :last-settled-at _G.ball.position)
   (set _G.drawables [_G.ball])
 

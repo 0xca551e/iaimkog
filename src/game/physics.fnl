@@ -164,6 +164,8 @@
   (set ball.velocity (-> ball.velocity
                          (_G.vector.scale (/ 1 (+ 1 (* dt _G.friction))))))
   (+= ball.velocity.z (- _G.gravity))
+  (set ball.velocity (-> ball.velocity
+                         (vector.rotate-by-axis-angle {:x 0 :y 0 :z 1} (* ball.spin-x _G.max-angular-sidespin))))
   (set ball.position (-> ball.velocity
                          (_G.vector.scale dt)
                          (_G.vector.add ball.position)))

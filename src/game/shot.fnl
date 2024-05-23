@@ -49,13 +49,33 @@
                      (love.keyboard.isDown (. _G.control-map :secondary))
                      (do
                        (when (love.keyboard.isDown (. _G.control-map :left))
-                         (set _G.shot.spin-x (lume.clamp (- _G.shot.spin-x spin-speed) (- 1) 1)))
+                         (set _G.shot.spin-x (lume.clamp (- _G.shot.spin-x spin-speed) (- 1) 1))
+
+                         (_G.generate-ball-preview)
+                         (_G.camera.to-preview-tail)
+                         
+                         )
                        (when (love.keyboard.isDown (. _G.control-map :right))
-                         (set _G.shot.spin-x (lume.clamp (+ _G.shot.spin-x spin-speed) (- 1) 1)))
+                         (set _G.shot.spin-x (lume.clamp (+ _G.shot.spin-x spin-speed) (- 1) 1))
+                         
+                         (_G.generate-ball-preview)
+                         (_G.camera.to-preview-tail)
+                         
+                         )
                        (when (love.keyboard.isDown (. _G.control-map :up))
-                         (set _G.shot.spin-y (lume.clamp (- _G.shot.spin-y spin-speed) (- 1) 1)))
+                         (set _G.shot.spin-y (lume.clamp (- _G.shot.spin-y spin-speed) (- 1) 1))
+                         
+                         (_G.generate-ball-preview)
+                         (_G.camera.to-preview-tail)
+
+                         )
                        (when (love.keyboard.isDown (. _G.control-map :down))
-                         (set _G.shot.spin-y (lume.clamp (+ _G.shot.spin-y spin-speed) (- 1) 1))))
+                         (set _G.shot.spin-y (lume.clamp (+ _G.shot.spin-y spin-speed) (- 1) 1))
+                         
+                         (_G.generate-ball-preview)
+                         (_G.camera.to-preview-tail)
+
+                         ))
                      (do
                        (when (love.keyboard.isDown (. _G.control-map :left))
                          (+= _G.shot.angle speed)
@@ -117,6 +137,7 @@
   (set _G.shot.state "moving")
   (set _G.shot.stillness-timer 0)
   (set _G.ball.velocity (_G.shot.velocity-vector _G.shot.type _G.shot.angle _G.shot.meter))
+  (set _G.ball.spin-x _G.shot.spin-x)
   (love.audio.stop _G.meter-sound))
 
 (fn _G.shot.conclude [success]
