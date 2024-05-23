@@ -106,3 +106,15 @@
        angle (math.rad 90)
        rotated-vector (_G.vector.rotate-by-axis-angle vector axis angle)]
    (print (inspect rotated-vector))))
+
+(fn _G.vector.move-towards [start target distance]
+  (let [direction (_G.vector.subtract target start)
+        magnitude (_G.vector.length direction)]
+    (if (<= magnitude distance) target
+        (let [normalized-direction (_G.vector.normalize direction)
+              new-position (_G.vector.add start (_G.vector.scale normalized-direction distance))]
+          new-position))))
+(comment
+  (_G.vector.move-towards {:x 0 :y 0 :z 0} {:x 3 :y 4 :z 5} 5)
+  (_G.vector.move-towards {:x 0 :y 0 :z 0} {:x 3 :y 4 :z 5} 10)
+  (_G.vector.move-towards {:x 0 :y 0 :z 0} {:x 3 :y 4 :z 5} 7.0710678118655))

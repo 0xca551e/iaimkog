@@ -38,9 +38,13 @@
         tail-y (. _G.ball-preview preview-length)
         width (/ (love.graphics.getWidth) 3)
         height (/ (love.graphics.getHeight) 3)
-        new-x (- tail-x (/ width 2))
-        new-y (- tail-y (/ height 2))]
-    (_G.camera.set-target (- new-x) (- new-y) 1 _G.ease-out-quint)))
+        centered-tail-x (- tail-x (/ width 2))
+        centered-tail-y (- tail-y (/ height 2))
+        [ball-x ball-y] (_G.geometry.to-isometric _G.ball.position.x _G.ball.position.y _G.ball.position.z)
+        centered-ball-x (- ball-x (/ width 2))
+        centered-ball-y (- ball-y (/ height 2))
+        new-pos (_G.vector.move-towards {:x centered-tail-x :y centered-tail-y :z 0} {:x centered-ball-x :y centered-ball-y :z 0} (/ height 2))]
+    (_G.camera.set-target (- new-pos.x) (- new-pos.y) 1 _G.ease-out-quint)))
 
 (fn _G.camera.lerp-to-target [dt]
   (let [t-delta (/ dt _G.camera.target.duration)

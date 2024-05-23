@@ -7,7 +7,7 @@
                      :just-collided false
                      :spin-x _G.shot.spin-x
                      :spin-y _G.shot.spin-y})
-  (for [i 0 200 1]
+  (for [i 0 (if (= _G.shot.type "roll") 100 300) 1]
     (_G.physics.integrate-ball preview-ball _G.timestep)
     (when (< preview-ball.position.z -1)
       (lua :break))
