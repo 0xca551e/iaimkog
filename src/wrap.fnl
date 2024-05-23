@@ -47,6 +47,8 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
   (set _G.tris [])
 
+  (set _G.level-hole _G.vector.zero)
+
   (set _G.ball {:position {:x -6 :y 5 :z 1.25}
              :radius 0.25
              :velocity {:x 0 :y 0 :z 0}

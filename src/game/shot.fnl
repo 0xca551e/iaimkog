@@ -130,7 +130,14 @@
   (set _G.shot.fly-meter 0)
   (set _G.shot.stillness-timer 0)
   (if success
-      (set _G.ball.last-settled-at _G.ball.position)
+      (do
+        (set _G.ball.last-settled-at _G.ball.position)
+        (let [hole-bottom (_G.vector.add _G.level-hole {:x 0.5 :y 0.5 :z -1})
+              ball-bottom (_G.vector.subtract _G.ball.position {:x 0 :y 0 :z _G.ball.radius})
+              distance-to-hole (_G.vector.length (_G.vector.subtract ball-bottom hole-bottom))]
+          (when (< distance-to-hole 1.2)
+            ; TODO: go to next level
+            (print "In the hole!"))))
       (set _G.ball.position _G.ball.last-settled-at))
   (_G.generate-ball-preview)
   (_G.camera.to-preview-tail))

@@ -131,14 +131,18 @@
         l-tri [{:a dl :b ul :c {:x 0.2 :y 0.5 :z 0}}]
         u-tri [{:a ul :b ur :c {:x 0.5 :y 0.2 :z 0}}]
 
+        bottom (_G.geometry.rect-tris {:x 0 :y 0 :z 0}
+                                      {:x 1 :y 0 :z 0}
+                                      {:x 0 :y 1 :z 0}
+                                      {:x 1 :y 1 :z 0})
+
         hole-tris (-> circle-lines
                       (lume.map (fn [x]
                                   (_G.geometry.extrude-line-to-rect x {:x 0 :y 0 :z -0.5} true)))
                       (_G.util.flatten))
 
         ]
-        (print (inspect ul-tris))
-    [(lume.concat ur-tris ul-tris dl-tris dr-tris r-tri d-tri l-tri u-tri hole-tris)
+    [(lume.concat ur-tris ul-tris dl-tris dr-tris r-tri d-tri l-tri u-tri hole-tris bottom)
     ;  (lume.concat square-lines circle-lines)
     ;  (lume.concat square-verts circle-verts)
      ]))
