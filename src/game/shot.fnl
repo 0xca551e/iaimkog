@@ -119,7 +119,7 @@
   (set _G.ball.velocity (_G.shot.velocity-vector _G.shot.type _G.shot.angle _G.shot.meter))
   (love.audio.stop _G.meter-sound))
 
-(fn _G.shot.conclude []
+(fn _G.shot.conclude [success]
   (set _G.shot.angle 0)
   (set _G.shot.spin-x 0)
   (set _G.shot.spin-y 0)
@@ -129,6 +129,9 @@
   (set _G.shot.meter 0)
   (set _G.shot.fly-meter 0)
   (set _G.shot.stillness-timer 0)
+  (if success
+      (set _G.ball.last-settled-at _G.ball.position)
+      (set _G.ball.position _G.ball.last-settled-at))
   (_G.generate-ball-preview)
   (_G.camera.to-preview-tail))
 
@@ -156,7 +159,9 @@
                (when (< (_G.vector.length-sq _G.ball.velocity) 0.02)
                  (+= _G.shot.stillness-timer dt)
                  (when (> _G.shot.stillness-timer 3)
-                   (_G.shot.conclude))))))
+                   (_G.shot.conclude true)))
+               (when (< _G.ball.position.z -1)
+                 (_G.shot.conclude false)))))
 
 (fn _G.shot.draw []
   (love.graphics.print
