@@ -42,6 +42,7 @@
 (_G.fly-meter-sound:setLooping true)
 
 (set _G.max-angular-sidespin 0.02)
+(set _G.max-topspin 5)
 
 (set _G.sprite-quads {})
 (-> [[:floor 0 0 32 32]

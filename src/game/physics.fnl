@@ -166,6 +166,13 @@
   (+= ball.velocity.z (- _G.gravity))
   (set ball.velocity (-> ball.velocity
                          (vector.rotate-by-axis-angle {:x 0 :y 0 :z 1} (* ball.spin-x _G.max-angular-sidespin))))
+  (when (and (not= ball.spin-y 0) ball.just-collided)
+    (let [boost (-> ball.velocity
+                        (_G.vector.multiply {:x 1 :y 1 :z 0})
+                        (_G.vector.normalize)
+                        (_G.vector.scale (* ball.spin-y _G.max-topspin)))]
+      (set ball.velocity (_G.vector.add ball.velocity boost))
+      (set ball.spin-y 0)))
   (set ball.position (-> ball.velocity
                          (_G.vector.scale dt)
                          (_G.vector.add ball.position)))

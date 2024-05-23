@@ -5,7 +5,8 @@
                      :radius _G.ball.radius
                      :collided false
                      :just-collided false
-                     :spin-x _G.shot.spin-x})
+                     :spin-x _G.shot.spin-x
+                     :spin-y _G.shot.spin-y})
   (for [i 0 200 1]
     (_G.physics.integrate-ball preview-ball _G.timestep)
     (when (< preview-ball.position.z -1)
