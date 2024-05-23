@@ -100,6 +100,8 @@
   true)
 
 (fn _G.physics.collision-detection-and-resolution [ball]
+  (var next-collided false)
+
   (local broad-phase-collisions [])
   (local ball-aabb (_G.physics.sphere-aabb ball))
   (local ball-sweep-range (_G.util.find-range _G.tris ball-aabb.min.x ball-aabb.max.x [2 :max :x] [2 :min :x]))
@@ -122,7 +124,8 @@
                         parallel-component
                         (_G.vector.scale perpendicular-component (- _G.elasticity)))]
           (set ball.position (_G.vector.add ball.position collision.mtv))
-          (set ball.velocity response)))))
+          (set ball.velocity response)
+          (set next-collided true)))))
   (each [_ edge (ipairs (_G.geometry.tri-edges broad-phase-collisions))]
     (let [collision (_G.physics.collision-sphere-line ball edge)]
       (when collision
@@ -136,7 +139,8 @@
                         parallel-component
                         (_G.vector.scale perpendicular-component (- _G.elasticity)))]
           (set ball.position (_G.vector.add ball.position collision.mtv))
-          (set ball.velocity response)))))
+          (set ball.velocity response)
+          (set next-collided true)))))
   (each [_ vert (ipairs (_G.geometry.tri-verts broad-phase-collisions))]
     (let [collision (_G.physics.collision-sphere-point ball vert)]
       (when collision
@@ -150,7 +154,11 @@
                         parallel-component
                         (_G.vector.scale perpendicular-component (- _G.elasticity)))]
           (set ball.position (_G.vector.add ball.position collision.mtv))
-          (set ball.velocity response))))))
+          (set ball.velocity response)
+          (set next-collided true)))))
+  (when (and next-collided (not ball.collided))
+    (set ball.just-collided true))
+  (set ball.collided next-collided))
 
 (fn _G.physics.integrate-ball [ball dt]
   (set ball.velocity (-> ball.velocity

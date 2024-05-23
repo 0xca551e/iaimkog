@@ -55,7 +55,9 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
              :variant :ball
              :animation {:timer 0
                          :frame-duration (/ 1 6)}
-             :draw-offset {:x 8 :y 6 :z -0.75}})
+             :draw-offset {:x 8 :y 6 :z -0.75}
+             :collided false
+             :just-collided false})
   (tset _G.ball :last-settled-at _G.ball.position)
   (set _G.drawables [_G.ball])
 
@@ -88,6 +90,12 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
       ;; (_G.integrate-ball dt)
       (_G.manual-control-ball _G.timestep)
       (_G.shot.update _G.timestep))
+    (when _G.ball.just-collided
+      (local bounce-sound (_G.bounce-sound:clone))
+      (local volume (-> _G.ball.velocity.z (/ 2) (math.min 1)))
+      (bounce-sound:setVolume volume)
+      (love.audio.play bounce-sound))
+    (set _G.ball.just-collided false)
     (lume.clear _G.just-pressed)))
 
 (fn love.draw []

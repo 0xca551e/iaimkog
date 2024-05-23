@@ -28,6 +28,8 @@
 (set _G.bg1 (love.graphics.newImage "sprites/bg1.png"))
 (set _G.bg2 (love.graphics.newImage "sprites/bg2.png"))
 
+(set _G.bounce-sound (love.audio.newSource "sound/172660__qubodup__boing-jump-cc-by-cfork-boing_rawaif-7967.ogg" "static"))
+
 (set _G.meter-sound-low-pitch 1.0)
 (set _G.meter-sound-high-pitch 2.0)
 (set _G.meter-sound (love.audio.newSource (_G.util.make-triangle-wave 44100 1 440 1)))
