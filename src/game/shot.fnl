@@ -86,12 +86,16 @@
                       (set _G.shot.state "aiming"))
                     (when (. _G.just-pressed (. _G.control-map :primary))
                       ;; (tset _G.just-pressed (. _G.control-map :primary) nil)
-                      (set _G.shot.state "charging")))
+                      (_G.meter-sound:setPitch _G.meter-sound-low-pitch)
+                      (set _G.shot.state "charging")
+                      (love.audio.play _G.meter-sound)))
     "preshot-normal" (do
                        (when (love.keyboard.isDown (. _G.control-map :secondary))
                          (set _G.shot.state "aiming"))
                        (when (. _G.just-pressed (. _G.control-map :primary))
-                         (set _G.shot.state "charging")))
+                         (set _G.shot.state "charging")
+                         (_G.meter-sound:setPitch _G.meter-sound-low-pitch)
+                         (love.audio.play _G.meter-sound)))
     "charging" (when (. _G.just-pressed (. _G.control-map :primary))
                  (_G.shot.apply))
     "moving" (do (todo!))))
@@ -107,7 +111,8 @@
 (fn _G.shot.apply []
   (set _G.shot.state "moving")
   (set _G.shot.stillness-timer 0)
-  (set _G.ball.velocity (_G.shot.velocity-vector _G.shot.type _G.shot.angle _G.shot.meter)))
+  (set _G.ball.velocity (_G.shot.velocity-vector _G.shot.type _G.shot.angle _G.shot.meter))
+  (love.audio.stop _G.meter-sound))
 
 (fn _G.shot.conclude []
   (set _G.shot.angle 0)
@@ -138,7 +143,9 @@
                        (_G.shot.apply))
                      (do
                        (set _G.shot.meter (_G.util.triangle-oscillate (/ _G.shot.meter-timer (* _G.shot-meter-max-time 2))))
-                       (print _G.shot.meter))))
+                       (print _G.shot.meter)))
+                 
+                 (_G.meter-sound:setPitch (lume.lerp _G.meter-sound-low-pitch _G.meter-sound-high-pitch _G.shot.meter)))
     "moving" (do
                ;; (print "moving?")
                (_G.physics.integrate-ball _G.ball dt)

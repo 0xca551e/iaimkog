@@ -125,3 +125,59 @@
 (comment
  (let (tbl [1 2 3 4 5 6 7 8 9 10])
    (segments tbl 2 1 1)))
+
+(fn _G.util.make-sine-wave [sample-rate duration frequency amplitude]
+  (let [num-samples (* sample-rate duration)
+        sound-data (love.sound.newSoundData num-samples
+                                            sample-rate
+                                            16 1)
+        amplitude 1]
+    (for [i 0 (- num-samples 1)]
+      (local value
+             (* amplitude
+                (math.sin (/ (* (* (* 2 math.pi)
+                                   frequency)
+                                i)
+                             sample-rate))))
+      (sound-data:setSample i value))
+    sound-data))
+(fn _G.util.make-square-wave [sample-rate duration frequency amplitude pwm]
+  (let [num-samples (* sample-rate duration)
+        sound-data (love.sound.newSoundData num-samples
+                                            sample-rate 16 1)
+        amplitude 1]
+    (for [i 0 (- num-samples 1)]
+      (local value
+             (or (and (< (% i (/ sample-rate frequency))
+                         (* (/ sample-rate frequency) pwm))
+                      amplitude)
+                 (- amplitude)))
+      (sound-data:setSample i value))
+    sound-data))
+(fn _G.util.make-triangle-wave [sample-rate duration frequency amplitude]
+  (let [num-samples (* sample-rate duration)
+        sound-data (love.sound.newSoundData num-samples
+                                            sample-rate 16 1)
+        amplitude 1]
+    (for [i 0 (- num-samples 1)]
+      (local value (- (* (* 2 amplitude)
+                         (math.abs (- (% (* 2
+                                            (/ (* frequency i)
+                                               sample-rate))
+                                         2)
+                                      1)))
+                      1))
+      (sound-data:setSample i value))
+    sound-data))
+(fn _G.util.make-sawtooth-wave [sample-rate duration frequency amplitude]
+  (let [num-samples (* sample-rate duration)
+        sound-data (love.sound.newSoundData num-samples
+                                            sample-rate 16 1)
+        amplitude 1]
+    (for [i 0 (- num-samples 1)]
+      (local value (* (* 2 amplitude)
+                      (- (% (* 2 (/ (* frequency i) sample-rate))
+                            2)
+                         1)))
+      (sound-data:setSample i value))
+    sound-data))	
