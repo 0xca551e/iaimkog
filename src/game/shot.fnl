@@ -138,10 +138,14 @@
   (set _G.shot.stillness-timer 0)
   (set _G.ball.velocity (_G.shot.velocity-vector _G.shot.type _G.shot.angle _G.shot.meter))
   (set _G.ball.spin-x _G.shot.spin-x)
-  (set _G.ball.spin-y _G.shot.spin-y)
+  (set _G.ball.spin-y _G.shot.fly-meter)
   (love.audio.stop _G.meter-sound))
 
 (fn _G.shot.conclude [success]
+  (set _G.ball.collided false)
+  (set _G.ball.just-collided false)
+  (set _G.ball.velocity _G.vector.zero)
+
   (set _G.shot.angle 0)
   (set _G.shot.spin-x 0)
   (set _G.shot.spin-y 0)
@@ -176,7 +180,7 @@
                  (+= _G.shot.meter-timer dt)
                  (if (> _G.shot.meter-timer (* _G.shot-meter-max-time 2))
                      (do
-                       (set _G.shot.meter 1)
+                       (set _G.shot.meter 0.05)
                        (_G.shot.apply))
                      (do
                        (set _G.shot.meter (_G.util.triangle-oscillate (/ _G.shot.meter-timer (* _G.shot-meter-max-time 2))))))
