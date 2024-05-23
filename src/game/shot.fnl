@@ -197,8 +197,8 @@
   ;  (table.concat [_G.shot.state _G.shot.angle _G.shot.type _G.shot.state _G.shot.spin-x _G.shot.spin-y] "\n")
   ;  10 10)
   (when (or (= _G.shot.state "preshot-fly")
-          (= _G.shot-state "preshot-normal")
-          (= _G.shot-state "charging")
+          (= _G.shot.state "preshot-normal")
+          (= _G.shot.state "charging")
           (and (= _G.shot.state "aiming") (love.keyboard.isDown (. _G.control-map :secondary))))
     (let [overlay-color [0 0 0 0.5]
           overlay-x 0
@@ -218,7 +218,16 @@
           topspin-line-y (- ball-center-y (* _G.shot.spin-y ball-radius))
           sidespin-line-y1 (/ (- overlay-height ball-radius ball-radius 10) 2)
           sidespin-line-y2 (+ sidespin-line-y1 ball-radius ball-radius 10)
-          sidespin-line-x (+ ball-center-x (* _G.shot.spin-x ball-radius))]
+          sidespin-line-x (+ ball-center-x (* _G.shot.spin-x ball-radius))
+          meter-bar-empty-color [0 0 0 1]
+          meter-bar-y-padding 5
+          meter-bar-x (+ overlay-x overlay-width 4)
+          meter-bar-y (+ overlay-y meter-bar-y-padding)
+          meter-bar-width 5
+          meter-bar-height (- (+ overlay-y overlay-height) meter-bar-y-padding meter-bar-y-padding)
+          meter-bar-filled-color [1 1 0 1]
+          meter-bar-filled-height (math.floor (* meter-bar-height _G.shot.meter))
+          meter-bar-filled-y (+ meter-bar-y (- meter-bar-height meter-bar-filled-height))]
       (love.graphics.setColor (unpack overlay-color))
       (love.graphics.rectangle "fill" overlay-x overlay-y overlay-width overlay-height)
       (love.graphics.setColor (unpack ball-fill-color))
@@ -230,4 +239,8 @@
       (love.graphics.setLineWidth spin-line-width)
       (love.graphics.line topspin-line-x1 topspin-line-y topspin-line-x2 topspin-line-y)
       (love.graphics.line sidespin-line-x sidespin-line-y1 sidespin-line-x sidespin-line-y2)
+      (love.graphics.setColor (unpack meter-bar-empty-color))
+      (love.graphics.rectangle "fill" meter-bar-x meter-bar-y meter-bar-width meter-bar-height)
+      (love.graphics.setColor (unpack meter-bar-filled-color))
+      (love.graphics.rectangle "fill" meter-bar-x meter-bar-filled-y meter-bar-width meter-bar-filled-height)
       (love.graphics.setColor 1 1 1 1))))

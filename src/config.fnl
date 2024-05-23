@@ -20,7 +20,7 @@
   (set _G.gravity 0.1)
   (set _G.friction 0.5)
   (set _G.elasticity 0.8)
-(set _G.shot-meter-max-time 4.0)
+(set _G.shot-meter-max-time 2.0)
 (set _G.base-strength 10)
 (set _G.base-fly-strength 10)
 
