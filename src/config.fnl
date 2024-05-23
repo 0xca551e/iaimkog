@@ -20,7 +20,7 @@
   (set _G.gravity 0.1)
   (set _G.friction 0.5)
   (set _G.elasticity 0.8)
-(set _G.shot-meter-max-time 2.0)
+(set _G.shot-meter-max-time 4.0)
 (set _G.base-strength 10)
 (set _G.base-fly-strength 10)
 
@@ -32,6 +32,12 @@
 (set _G.meter-sound-high-pitch 2.0)
 (set _G.meter-sound (love.audio.newSource (_G.util.make-triangle-wave 44100 1 440 1)))
 (_G.meter-sound:setLooping true)
+
+(set _G.fly-meter-cycle-time 2.0)
+(set _G.fly-meter-sound-low-pitch 0.5)
+(set _G.fly-meter-sound-high-pitch 2.0)
+(set _G.fly-meter-sound (love.audio.newSource (_G.util.make-sine-wave 44100 1 440 0.5)))
+(_G.fly-meter-sound:setLooping true)
 
 (set _G.sprite-quads {})
 (-> [[:floor 0 0 32 32]

@@ -79,15 +79,19 @@
                          (_G.shot.change-type "down"))))
                  (when (love.keyboard.isDown (. _G.control-map :primary))
                    (if (= _G.shot.type "fly")
-                       (set _G.shot.state "preshot-fly")
+                       (do
+                         (set _G.shot.state "preshot-fly")
+                         (love.audio.play _G.fly-meter-sound))
                        (set _G.shot.state "preshot-normal")))))
     "preshot-fly" (do
                     (when (. _G.just-pressed (. _G.control-map :secondary))
+                      (love.audio.stop _G.fly-meter-sound)
                       (set _G.shot.state "aiming"))
                     (when (. _G.just-pressed (. _G.control-map :primary))
                       ;; (tset _G.just-pressed (. _G.control-map :primary) nil)
                       (_G.meter-sound:setPitch _G.meter-sound-low-pitch)
                       (set _G.shot.state "charging")
+                      (love.audio.stop _G.fly-meter-sound)
                       (love.audio.play _G.meter-sound)))
     "preshot-normal" (do
                        (when (love.keyboard.isDown (. _G.control-map :secondary))
@@ -95,6 +99,7 @@
                        (when (. _G.just-pressed (. _G.control-map :primary))
                          (set _G.shot.state "charging")
                          (_G.meter-sound:setPitch _G.meter-sound-low-pitch)
+                         (love.audio.stop _G.fly-meter-sound)
                          (love.audio.play _G.meter-sound)))
     "charging" (when (. _G.just-pressed (. _G.control-map :primary))
                  (_G.shot.apply))
@@ -131,10 +136,10 @@
   (_G.shot.handle-controls dt)
   (case _G.shot.state
     "preshot-fly" (let [time (love.timer.getTime)
-                        speed 1
-                        fly-level (-> (_G.util.triangle-oscillate (% (* time speed) 1)) (* 2) (- 1))]
+                        fly-level (-> (_G.util.triangle-oscillate (% (/ time _G.fly-meter-cycle-time) 1)) (* 2) (- 1))]
                     (set _G.shot.fly-meter fly-level)
-                    (print fly-level))
+
+                    (_G.fly-meter-sound:setPitch (lume.lerp _G.fly-meter-sound-low-pitch _G.fly-meter-sound-high-pitch (-> _G.shot.fly-meter (+ 1) (/ 2)))))
     "charging" (do
                  (+= _G.shot.meter-timer dt)
                  (if (> _G.shot.meter-timer (* _G.shot-meter-max-time 2))
@@ -142,8 +147,7 @@
                        (set _G.shot.meter 1)
                        (_G.shot.apply))
                      (do
-                       (set _G.shot.meter (_G.util.triangle-oscillate (/ _G.shot.meter-timer (* _G.shot-meter-max-time 2))))
-                       (print _G.shot.meter)))
+                       (set _G.shot.meter (_G.util.triangle-oscillate (/ _G.shot.meter-timer (* _G.shot-meter-max-time 2))))))
                  
                  (_G.meter-sound:setPitch (lume.lerp _G.meter-sound-low-pitch _G.meter-sound-high-pitch _G.shot.meter)))
     "moving" (do

@@ -130,8 +130,7 @@
   (let [num-samples (* sample-rate duration)
         sound-data (love.sound.newSoundData num-samples
                                             sample-rate
-                                            16 1)
-        amplitude 1]
+                                            16 1)]
     (for [i 0 (- num-samples 1)]
       (local value
              (* amplitude
@@ -144,8 +143,7 @@
 (fn _G.util.make-square-wave [sample-rate duration frequency amplitude pwm]
   (let [num-samples (* sample-rate duration)
         sound-data (love.sound.newSoundData num-samples
-                                            sample-rate 16 1)
-        amplitude 1]
+                                            sample-rate 16 1)]
     (for [i 0 (- num-samples 1)]
       (local value
              (or (and (< (% i (/ sample-rate frequency))
@@ -157,8 +155,7 @@
 (fn _G.util.make-triangle-wave [sample-rate duration frequency amplitude]
   (let [num-samples (* sample-rate duration)
         sound-data (love.sound.newSoundData num-samples
-                                            sample-rate 16 1)
-        amplitude 1]
+                                            sample-rate 16 1)]
     (for [i 0 (- num-samples 1)]
       (local value (- (* (* 2 amplitude)
                          (math.abs (- (% (* 2
@@ -172,8 +169,7 @@
 (fn _G.util.make-sawtooth-wave [sample-rate duration frequency amplitude]
   (let [num-samples (* sample-rate duration)
         sound-data (love.sound.newSoundData num-samples
-                                            sample-rate 16 1)
-        amplitude 1]
+                                            sample-rate 16 1)]
     (for [i 0 (- num-samples 1)]
       (local value (* (* 2 amplitude)
                       (- (% (* 2 (/ (* frequency i) sample-rate))
