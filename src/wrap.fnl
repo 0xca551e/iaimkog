@@ -49,9 +49,9 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
   (set _G.level-hole _G.vector.zero)
 
-  (set _G.ball {:position {:x -6 :y 5 :z 1.25}
+  (set _G.ball {:position _G.vector.zero
                 :radius 0.25
-                :velocity {:x 0 :y 0 :z 0}
+                :velocity _G.vector.zero
                 :variant :ball
                 :animation {:timer 0
                             :frame-duration (/ 1 6)}
@@ -63,7 +63,7 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (tset _G.ball :last-settled-at _G.ball.position)
   (set _G.drawables [_G.ball])
 
-  (_G.level.read-file-lines "levels/updown-level.txt")
+  (_G.level.read-file-lines "levels/1-1.txt")
   ;; NOTE: the level is static, so we don't need to sort every frame.
   ;; in a later version this might change
   (_G.util.insertion-sort-by-mut _G.tris (fn [a b]
@@ -111,7 +111,10 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (_G.level.draw)
 
   (love.graphics.setColor 1 1 1 1)
-  (when (and (= _G.shot.state "aiming") (>= (# _G.ball-preview) 2))
+  (when (and (or (= _G.shot.state "aiming")
+                 (= _G.shot.state "preshot-roll")
+                 (= _G.shot.state "preshot-fly"))
+             (>= (# _G.ball-preview) 2))
     (let [offset (-> (love.timer.getTime)
                      (* 20)
                      (% 10)

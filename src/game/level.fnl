@@ -54,6 +54,10 @@
         (let [[x y z hex] (_G.split-words formatted-line)
               color-name (. _G.color-names hex)
               tile (. _G.color-tile-map color-name)]
+          (when (= color-name :stinger)
+            (let [next-pos {:x (+ (- (tonumber x)) 0.5) :y (+ (tonumber y) 0.5) :z (+ (tonumber z) 0.251)}]
+              (tset _G.ball :position next-pos)
+              (tset _G.ball :last-settled-at next-pos)))
           (when tile
             (when (= tile :hole)
               (set _G.level-hole {:x (- (tonumber x)) :y (tonumber y) :z (tonumber z)}))
