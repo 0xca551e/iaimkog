@@ -161,9 +161,11 @@
         (let [hole-bottom (_G.vector.add _G.level-hole {:x 0.5 :y 0.5 :z -1})
               ball-bottom (_G.vector.subtract _G.ball.position {:x 0 :y 0 :z _G.ball.radius})
               distance-to-hole (_G.vector.length (_G.vector.subtract ball-bottom hole-bottom))]
-          (when (< distance-to-hole 1.2)
-            ; TODO: go to next level
-            (print "In the hole!"))))
+          (if (< distance-to-hole 1.2)
+            (do
+              (set _G.shot-success-timer 8)
+              (set _G.shot.state "success"))
+            (+= _G.shot-no 1))))
       (set _G.ball.position _G.ball.last-settled-at))
   (_G.generate-ball-preview)
   (_G.camera.to-preview-tail))
@@ -194,12 +196,22 @@
                  (when (> _G.shot.stillness-timer 3)
                    (_G.shot.conclude true)))
                (when (< _G.ball.position.z -1)
-                 (_G.shot.conclude false)))))
+                 (_G.shot.conclude false)))
+    "success" (do
+      (-= _G.shot-success-timer dt)
+      (when (<= _G.shot-success-timer 0)
+        (_G.playing-course-scene.next-hole)))))
 
 (fn _G.shot.draw []
   ; (love.graphics.print
   ;  (table.concat [_G.shot.state _G.shot.angle _G.shot.type _G.shot.state _G.shot.spin-x _G.shot.spin-y] "\n")
   ;  10 10)
+  (when (= _G.shot.state "success")
+    (let [text (_G.util.score-name _G.shot-no _G.par)
+          w (_G.font:getWidth text)
+          x (/ (- 240 w) 2)
+          y 60]
+      (love.graphics.print text x y)))
   (when (or (= _G.shot.state "preshot-fly")
             (= _G.shot.state "preshot-normal")
             (= _G.shot.state "charging")

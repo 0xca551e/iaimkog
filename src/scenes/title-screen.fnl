@@ -64,9 +64,9 @@
               menu-item-y (+ menu-offset-y menu-item-offset-y)]
           (when (= i _G.state.menu-items-selected)
             (love.graphics.setColor (unpack (. _G.color-map :viking)))
-            (love.graphics.rectangle "fill" menu-offset-x menu-item-y (_G.font:getWidth (. _G.state.menu-items _G.state.menu-items-selected :text)) 16)
+            (love.graphics.rectangle "fill" menu-offset-x menu-item-y (_G.font:getWidth (. _G.state.menu-items _G.state.menu-items-selected :text)) 15)
             (love.graphics.setColor (unpack (. _G.color-map :white)))
-            (love.graphics.rectangle "line" menu-offset-x menu-item-y (_G.font:getWidth (. _G.state.menu-items _G.state.menu-items-selected :text)) 16))
+            (love.graphics.rectangle "line" menu-offset-x menu-item-y (_G.font:getWidth (. _G.state.menu-items _G.state.menu-items-selected :text)) 15))
           (love.graphics.setColor 1 1 1 1)
           (love.graphics.print v.text menu-offset-x menu-item-y))))
     ; else

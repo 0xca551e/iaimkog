@@ -2,13 +2,16 @@
 
 (set _G.playing-course-scene {})
 
-(fn _G.playing-course-scene.load []
-  (set _G.shot.state "moving")
+(fn _G.playing-course-scene.next-hole []
+  (table.insert _G.course-scores _G.shot-no)
+  (if (= _G.current-hole (# _G.course-holes))
+      (set _G.next-scene _G.result-screen-scene)
+      (_G.playing-course-scene.set-hole (+ _G.current-hole 1))))
 
-  (set _G.dt-acc 0)
-  (set _G.timestep (/ 1 60))
-  (set _G.max-steps-per-frame 5)
-  (set _G.paused false)
+(fn _G.playing-course-scene.set-hole [n]
+  (set _G.current-hole n)
+  (set _G.shot-no 0)
+  (set _G.par 3)
 
   (set _G.tris [])
   (set _G.level-hole _G.vector.zero)
@@ -26,17 +29,32 @@
   (tset _G.ball :last-settled-at _G.ball.position)
   (set _G.drawables [_G.ball])
 
-  (_G.level.read-file-lines "levels/1-1.txt")
+  (_G.level.read-file-lines (. _G.course-holes _G.current-hole))
   ;; NOTE: the level is static, so we don't need to sort every frame.
   ;; in a later version this might change
   (_G.util.insertion-sort-by-mut _G.tris (fn [a b]
                                 (let [[tri-a aabb-a] a
                                       [tri-b aabb-b] b]
                                   (- aabb-a.min.x aabb-b.min.x))))
-  
+
+  (set _G.shot.state "moving")
+
   (_G.generate-ball-preview)
-  (_G.camera.to-preview-tail)
-  )
+  (_G.camera.to-preview-tail))
+
+(fn _G.playing-course-scene.unload [])
+
+(fn _G.playing-course-scene.load []
+  (set _G.course-scores [])
+  (set _G.course-holes ["levels/1-1.txt" "levels/updown-level.txt"])
+  (set _G.course-hole-pars [3 3])
+
+  (set _G.dt-acc 0)
+  (set _G.timestep (/ 1 60))
+  (set _G.max-steps-per-frame 5)
+  (set _G.paused false)
+  
+  (_G.playing-course-scene.set-hole 1))
 
 ; (fn _G.manual-control-ball [dt]
 ;   (let [d (* 5 dt)
@@ -75,6 +93,7 @@
 
   (love.graphics.setColor 1 1 1 1)
   (when (and (not= _G.shot.state "moving")
+             (not= _G.shot.state "success")
              (>= (# _G.ball-preview) 2))
     (let [offset (-> (love.timer.getTime)
                      (* 20)
@@ -91,4 +110,10 @@
   (_G.camera.lerp-to-target (love.timer.getDelta))
 
   (love.graphics.origin)
-  (_G.shot.draw (love.timer.getDelta)))
+  (_G.shot.draw (love.timer.getDelta))
+  (love.graphics.print (.. "Shot #" _G.shot-no))
+  (let [text (.. "Par " _G.par)
+        w (_G.font:getWidth text)
+        x (- 240 w)
+        y 0]
+    (love.graphics.print text x y)))

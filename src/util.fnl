@@ -177,3 +177,23 @@
                          1)))
       (sound-data:setSample i value))
     sound-data))	
+
+(fn _G.util.score-name [strokes par]
+  (let [score (- strokes par)]
+    (if (= strokes 1) "Hole in one!"
+        (= score (- 3)) "Albatross"
+        (= score (- 2)) "Eagle"
+        (= score (- 1)) "Birdie"
+        (= score 0) "Par"
+        (= score 1) "Bogey"
+        (= score 2) "Double bogey"
+        (= score 3) "Triple bogey"
+        (= score 4) "Quadruple bogey"
+        (= score 5) "Quintuple bogey"
+        (= score 6) "Sextuple bogey"
+        (= score 7) "Septuple bogey"
+        (= score 8) "Octuple bogey"
+        (= score 9) "Nonuple bogey"
+        (= score 10) "Decuple bogey"
+        (= score 69) "nice"
+        (.. score "-tuple bogey"))))	
