@@ -135,7 +135,7 @@
         square-lines [[ur ul] [ul dl] [dl dr] [dr ur]]
         square-verts [ur ul dl dr]
 
-        circle-verts (_G.geometry.make-circle-verts {:x 0.5 :y 0.5 :z 1} 0.3 12)
+        circle-verts (_G.geometry.make-circle-verts {:x 0.5 :y 0.5 :z 1} 0.35 12)
         circle-lines (_G.geometry.close-loop (_G.util.window-by-2 circle-verts))
 
 
