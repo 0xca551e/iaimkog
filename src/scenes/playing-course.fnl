@@ -42,9 +42,13 @@
   (_G.generate-ball-preview)
   (_G.camera.to-preview-tail))
 
-(fn _G.playing-course-scene.unload [])
+(fn _G.playing-course-scene.unload []
+  ; TODO: course data should hold what song to play
+  (love.audio.stop _G.course-1-music))
 
 (fn _G.playing-course-scene.load []
+  (love.audio.play _G.course-1-music)
+
   (set _G.course-scores [])
   (set _G.course-holes ["levels/1-1.txt" "levels/updown-level.txt"])
   (set _G.course-hole-pars [3 3])
@@ -76,13 +80,13 @@
       ;; (_G.integrate-ball dt)
       ; (_G.manual-control-ball _G.timestep)
       (_G.shot.update _G.timestep))
-    ; (when _G.ball.just-collided
-    ;   (local bounce-sound (_G.bounce-sound:clone))
-    ;   (local volume (-> _G.ball.velocity.z (/ 2) (math.min 1)))
-    ;   (bounce-sound:setVolume volume)
-    ;   (love.audio.play bounce-sound))
-    ; (set _G.ball.just-collided false)
-    ))
+    (when _G.ball.just-collided-sound
+      (local bounce-sound (_G.bounce-sound:clone))
+      (local volume (-> _G.ball.velocity.z (/ 3) (math.min 1)))
+      (when (> volume 0.25)
+        (_G.bounce-sound:setVolume volume)
+        (love.audio.play bounce-sound)))
+      (set _G.ball.just-collided-sound false)))
 
 (fn _G.playing-course-scene.draw []
   (love.graphics.draw _G.bg1)

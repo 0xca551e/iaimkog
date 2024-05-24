@@ -2,9 +2,11 @@
 
 (set _G.result-screen-scene {})
 
-(fn _G.result-screen-scene.unload [])
+(fn _G.result-screen-scene.unload []
+  (love.audio.stop _G.title-screen-music))
 
-(fn _G.result-screen-scene.load [])
+(fn _G.result-screen-scene.load []
+  (love.audio.play _G.title-screen-music))
 
 (fn _G.result-screen-scene.draw []
   ; TODO: the course will hold the bg
@@ -25,4 +27,6 @@
   (love.graphics.printf "Press [X] to continue" 0 140 240 "center"))
 (fn _G.result-screen-scene.update []
   (when (love.keyboard.isDown (. _G.control-map :primary))
+    (love.audio.stop _G.menu-confirm-sound)
+    (love.audio.play _G.menu-confirm-sound)
     (set _G.next-scene _G.title-screen-scene)))

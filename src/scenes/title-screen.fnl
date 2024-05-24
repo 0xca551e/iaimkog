@@ -1,8 +1,11 @@
 (set _G.title-screen-scene {})
 
-(fn _G.title-screen-scene.unload [])
+(fn _G.title-screen-scene.unload []
+  (love.audio.stop _G.title-screen-music))
 
 (fn _G.title-screen-scene.load []
+  (love.audio.play _G.title-screen-music)
+
   (set _G.state
   { :menu-open false
     :menu-items [{:text "Play game"
@@ -80,25 +83,43 @@
   (if _G.state.selecting-course
     (do
       (when (. _G.just-pressed _G.control-map.primary)
+        (love.audio.stop _G.menu-confirm-sound)
+        (love.audio.play _G.menu-confirm-sound)
         (set _G.next-scene _G.playing-course-scene))
       (when (. _G.just-pressed _G.control-map.secondary)
+        (love.audio.stop _G.menu-decline-sound)
+        (love.audio.play _G.menu-decline-sound)
         (set _G.state.selecting-course false))
       (when (. _G.just-pressed _G.control-map.left)
+        (love.audio.stop _G.menu-hover-sound)
+        (love.audio.play _G.menu-hover-sound)
         (set _G.state.course-selected (math.max 1 (- _G.state.course-selected 1))))
       (when (. _G.just-pressed _G.control-map.right)
+        (love.audio.stop _G.menu-hover-sound)
+        (love.audio.play _G.menu-hover-sound)
         (set _G.state.course-selected (math.min (# _G.state.course-select-items) (+ _G.state.course-selected 1)))))
     _G.state.menu-open
     (do
       (when (. _G.just-pressed _G.control-map.primary)
+        (love.audio.stop _G.menu-confirm-sound)
+        (love.audio.play _G.menu-confirm-sound)
         (let [on-select (. _G.state.menu-items _G.state.menu-items-selected :on-select)]
           (on-select)))
       (when (. _G.just-pressed _G.control-map.secondary)
+        (love.audio.stop _G.menu-decline-sound)
+        (love.audio.play _G.menu-decline-sound)
         (set _G.state.menu-open false))
       (when (. _G.just-pressed _G.control-map.up)
+        (love.audio.stop _G.menu-hover-sound)
+        (love.audio.play _G.menu-hover-sound)
         (set _G.state.menu-items-selected (math.max 1 (- _G.state.menu-items-selected 1))))
       (when (. _G.just-pressed _G.control-map.down)
+        (love.audio.stop _G.menu-hover-sound)
+        (love.audio.play _G.menu-hover-sound)
         (set _G.state.menu-items-selected (math.min (# _G.state.menu-items) (+ _G.state.menu-items-selected 1)))))
     ; else
     (do
       (when (. _G.just-pressed _G.control-map.primary)
+        (love.audio.stop _G.menu-confirm-sound)
+        (love.audio.play _G.menu-confirm-sound)
         (set _G.state.menu-open true)))))

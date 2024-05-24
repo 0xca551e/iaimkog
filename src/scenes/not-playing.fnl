@@ -5,6 +5,7 @@
 (fn _G.not-playing-scene.unload [])
 
 (fn _G.not-playing-scene.load []
+  (love.audio.play _G.not-playing-music)
   (set _G.angy-timer 0))
 
 (fn _G.not-playing-scene.draw []

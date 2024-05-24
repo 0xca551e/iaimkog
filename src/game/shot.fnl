@@ -134,6 +134,7 @@
     velocity))
 
 (fn _G.shot.apply []
+  (love.audio.play _G.whoosh-sound)
   (set _G.shot.state "moving")
   (set _G.shot.stillness-timer 0)
   (set _G.ball.velocity (_G.shot.velocity-vector _G.shot.type _G.shot.angle _G.shot.meter))
@@ -163,6 +164,9 @@
               distance-to-hole (_G.vector.length (_G.vector.subtract ball-bottom hole-bottom))]
           (if (< distance-to-hole 1.2)
             (do
+              (if (= _G.shot-no 1)
+                  (love.audio.play _G.cheer-sound)
+                  (love.audio.play _G.clap-sound))
               (set _G.shot-success-timer 8)
               (set _G.shot.state "success"))
             (+= _G.shot-no 1))))

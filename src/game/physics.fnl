@@ -157,7 +157,8 @@
           (set ball.velocity response)
           (set next-collided true)))))
   (when (and next-collided (not ball.collided))
-    (set ball.just-collided true))
+    (set ball.just-collided true)
+    (set ball.just-collided-sound true))
   (set ball.collided next-collided))
 
 (fn _G.physics.integrate-ball [ball dt]
