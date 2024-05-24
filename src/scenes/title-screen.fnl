@@ -9,7 +9,8 @@
                   :on-select (fn []
                                 (set _G.state.selecting-course true))}
                                 {:text "Don't play game"
-                                 :on-select (fn [] (print "TODO don't play game"))}]
+                                 :on-select (fn [] 
+                                              (set _G.next-scene _G.not-playing-scene))}]
     :menu-items-selected 1
     :selecting-course false
     :course-select-items [{:id "world-1"

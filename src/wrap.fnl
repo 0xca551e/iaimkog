@@ -38,6 +38,7 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
   (require :src.scenes.title-screen)
   (require :src.scenes.playing-course)
+  (require :src.scenes.not-playing)
   
   (set _G.scene _G.title-screen-scene)
   (_G.scene.load))

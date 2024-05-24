@@ -28,6 +28,7 @@
 (set _G.bg1 (love.graphics.newImage "sprites/bg1.png"))
 (set _G.bg2 (love.graphics.newImage "sprites/bg2.png"))
 (set _G.title-screen-logo (love.graphics.newImage "sprites/titlescreen-logo.png"))
+(set _G.angy (love.graphics.newImage "sprites/angy.png"))
 
 (set _G.bounce-sound (love.audio.newSource "sound/172660__qubodup__boing-jump-cc-by-cfork-boing_rawaif-7967.ogg" "static"))
 
