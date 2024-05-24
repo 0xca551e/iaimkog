@@ -31,7 +31,7 @@
 (fn _G.shot.handle-controls [dt]
   (case _G.shot.state
     "aiming" (do
-               (let [shift-factor (if (love.keyboard.isDown (. _G.control-map :fine-tune)) 0.5 1)
+               (let [shift-factor (if (love.keyboard.isDown (. _G.control-map :fine-tune)) 0.25 1)
                      speed (* shift-factor _G.rotation-speed dt)
                      spin-speed (* shift-factor 1 dt)
                      camera-speed (* shift-factor (. _G.camera-speed))]
