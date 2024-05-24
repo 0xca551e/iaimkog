@@ -323,3 +323,20 @@
 (set _G.color-map {})
 (each [k v (pairs _G.color-names)]
   (tset _G.color-map v (_G.--rgb-convert k)))
+  (set _G.font
+
+(love.graphics.newImageFont "sprites/sprFont_0.png"
+    (.. " !\"#$%&'("
+    ")*+,-./0"
+    "12345678"
+    "9:;<=>?@"
+    "ABCDEFGH"
+    "IJKLMNOP"
+    "QRSTUVWX"
+    "YZ[\\]^_`"
+    "abcdefgh"
+    "ijklmnop"
+    "qrstuvwx"
+    "yz{|}~"))
+)
+(love.graphics.setFont _G.font)

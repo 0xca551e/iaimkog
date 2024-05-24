@@ -201,9 +201,9 @@
   ;  (table.concat [_G.shot.state _G.shot.angle _G.shot.type _G.shot.state _G.shot.spin-x _G.shot.spin-y] "\n")
   ;  10 10)
   (when (or (= _G.shot.state "preshot-fly")
-          (= _G.shot.state "preshot-normal")
-          (= _G.shot.state "charging")
-          (and (= _G.shot.state "aiming") (love.keyboard.isDown (. _G.control-map :secondary))))
+            (= _G.shot.state "preshot-normal")
+            (= _G.shot.state "charging")
+            (and (= _G.shot.state "aiming") (love.keyboard.isDown (. _G.control-map :secondary))))
     (let [overlay-color [0 0 0 0.5]
           overlay-x 0
           overlay-y 0
