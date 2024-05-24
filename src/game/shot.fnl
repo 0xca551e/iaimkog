@@ -20,7 +20,8 @@
   (set _G.shot.type (. _G.shot.map _G.shot.type d))
   (when (not= _G.shot.type "fly")
     (set _G.shot.spin-x 0)
-    (set _G.shot.spin-y 0))
+    (set _G.shot.spin-y 0)
+    (set _G.shot.fly-meter 0))
   
   (_G.generate-ball-preview)
   (_G.camera.to-preview-tail)
@@ -221,36 +222,36 @@
             (= _G.shot.state "charging")
             (and (= _G.shot.state "aiming") (love.keyboard.isDown (. _G.control-map :secondary))))
     (let [overlay-color [0 0 0 0.5]
-          overlay-x 0
-          overlay-y 0
+          overlay-x (/ (- 240 50) 2)
+          overlay-y (/ (- 160 50) 2)
           overlay-width 50
           overlay-height 50
-          ball-stroke-color [0 0 0 1]
+          ball-stroke-color (. _G.color-map :valhalla)
           ball-line-width 5
-          ball-fill-color [1 0 0 1]
+          ball-fill-color (. _G.color-map :plum)
           ball-center-x (+ overlay-x (/ overlay-width 2))
           ball-center-y (+ overlay-y (/ overlay-height 2))
           ball-radius 15
           spin-line-color [1 1 1 1]
           spin-line-width 1
-          topspin-line-x1 (/ (- overlay-width ball-radius ball-radius 10) 2)
+          topspin-line-x1 (+ overlay-x (/ (- overlay-width ball-radius ball-radius 10) 2))
           topspin-line-x2 (+ topspin-line-x1 ball-radius ball-radius 10)
           topspin-line-y (- ball-center-y (* _G.shot.spin-y ball-radius))
-          fly-meter-color [0 0 1 1]
-          fly-meter-line-width 3
-          topspin-timer-line-x1 (- (+ overlay-x (/ overlay-width 2)) 3)
-          topspin-timer-line-x2 (+ (+ overlay-x (/ overlay-width 2)) 3)
-          topspin-timer-line-y (- ball-center-y (* _G.shot.fly-meter ball-radius))
-          sidespin-line-y1 (/ (- overlay-height ball-radius ball-radius 10) 2)
+          sidespin-line-y1 (+ overlay-y (/ (- overlay-height ball-radius ball-radius 10) 2))
           sidespin-line-y2 (+ sidespin-line-y1 ball-radius ball-radius 10)
           sidespin-line-x (+ ball-center-x (* _G.shot.spin-x ball-radius))
+          fly-meter-color (. _G.color-map :viking)
+          fly-meter-line-width 3
+          topspin-timer-line-x1 (- sidespin-line-x 4)
+          topspin-timer-line-x2 (+ sidespin-line-x 3)
+          topspin-timer-line-y (- ball-center-y (* _G.shot.fly-meter ball-radius))
           meter-bar-empty-color [0 0 0 1]
           meter-bar-y-padding 5
           meter-bar-x (+ overlay-x overlay-width 4)
           meter-bar-y (+ overlay-y meter-bar-y-padding)
           meter-bar-width 5
-          meter-bar-height (- (+ overlay-y overlay-height) meter-bar-y-padding meter-bar-y-padding)
-          meter-bar-filled-color [1 1 0 1]
+          meter-bar-height (- overlay-height meter-bar-y-padding meter-bar-y-padding)
+          meter-bar-filled-color (. _G.color-map :golden-fizz)
           meter-bar-filled-height (math.floor (* meter-bar-height _G.shot.meter))
           meter-bar-filled-y (+ meter-bar-y (- meter-bar-height meter-bar-filled-height))]
       (love.graphics.setColor (unpack overlay-color))
@@ -264,9 +265,10 @@
       (love.graphics.setLineWidth spin-line-width)
       (love.graphics.line topspin-line-x1 topspin-line-y topspin-line-x2 topspin-line-y)
       (love.graphics.line sidespin-line-x sidespin-line-y1 sidespin-line-x sidespin-line-y2)
-      (love.graphics.setColor fly-meter-color)
-      (love.graphics.setLineWidth fly-meter-line-width)
-      (love.graphics.line topspin-timer-line-x1 topspin-timer-line-y topspin-timer-line-x2 topspin-timer-line-y)
+      (when (not= _G.shot.state "aiming")
+        (love.graphics.setColor fly-meter-color)
+        (love.graphics.setLineWidth fly-meter-line-width)
+        (love.graphics.line topspin-timer-line-x1 topspin-timer-line-y topspin-timer-line-x2 topspin-timer-line-y))
       (love.graphics.setColor (unpack meter-bar-empty-color))
       (love.graphics.rectangle "fill" meter-bar-x meter-bar-y meter-bar-width meter-bar-height)
       (love.graphics.setColor (unpack meter-bar-filled-color))
