@@ -27,6 +27,7 @@
 (set _G.sprite-sheet (love.graphics.newImage "sprites/spritesheet.png"))
 (set _G.bg1 (love.graphics.newImage "sprites/bg1.png"))
 (set _G.bg2 (love.graphics.newImage "sprites/bg2.png"))
+(set _G.title-screen-logo (love.graphics.newImage "sprites/titlescreen-logo.png"))
 
 (set _G.bounce-sound (love.audio.newSource "sound/172660__qubodup__boing-jump-cc-by-cfork-boing_rawaif-7967.ogg" "static"))
 
@@ -312,3 +313,13 @@
       "d77bba" :plum
       "8f974a" :rain-forest
       "8a6f30" :stinger})
+
+(fn _G.--rgb-convert [hex]
+  (let [r (/ (tonumber (hex:sub 1 2) 16) 255)
+        g (/ (tonumber (hex:sub 3 4) 16) 255)
+        b (/ (tonumber (hex:sub 5 6) 16) 255)]
+    [r g b 1]))
+
+(set _G.color-map {})
+(each [k v (pairs _G.color-names)]
+  (tset _G.color-map v (_G.--rgb-convert k)))
