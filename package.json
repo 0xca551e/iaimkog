@@ -2,7 +2,7 @@
   "name": "iaimkog",
   "private": true,
   "scripts": {
-    "build": "love.js ./game ./js-build -m 354377427 -t iaimkog && cp ./serve.json ./js-build",
+    "build": "love.js ./game ./js-build -t iaimkog -m 67108860 && cp ./serve.json ./js-build && cd js-build && zip -r archive.zip *",
     "serve": "npx serve ./js-build"
   },
   "devDependencies": {
