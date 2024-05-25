@@ -1,0 +1,12 @@
+{
+  "name": "iaimkog",
+  "private": true,
+  "scripts": {
+    "build": "love.js ./game ./js-build -m 354377427 -t iaimkog && cp ./serve.json ./js-build",
+    "serve": "npx serve ./js-build"
+  },
+  "devDependencies": {
+    "love.js": "^11.4.1",
+    "serve": "^14.2.3"
+  }
+}

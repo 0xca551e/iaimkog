@@ -23,8 +23,9 @@
     (set _G.shot.spin-y 0)
     (set _G.shot.fly-meter 0))
   
-  (_G.generate-ball-preview)
-  (_G.camera.to-preview-tail)
+  ; (_G.generate-ball-preview)
+  ; (_G.camera.to-preview-tail)
+  (set _G.should-generate-ball-preview true)
 
   )
 
@@ -52,29 +53,33 @@
                        (when (love.keyboard.isDown (. _G.control-map :left))
                          (set _G.shot.spin-x (lume.clamp (- _G.shot.spin-x spin-speed) (- 1) 1))
 
-                         (_G.generate-ball-preview)
-                         (_G.camera.to-preview-tail)
+                         ; (_G.generate-ball-preview)
+                         ; (_G.camera.to-preview-tail)
+                         (set _G.should-generate-ball-preview true)
                          
                          )
                        (when (love.keyboard.isDown (. _G.control-map :right))
                          (set _G.shot.spin-x (lume.clamp (+ _G.shot.spin-x spin-speed) (- 1) 1))
                          
-                         (_G.generate-ball-preview)
-                         (_G.camera.to-preview-tail)
+                         ; (_G.generate-ball-preview)
+                         ; (_G.camera.to-preview-tail)
+                         (set _G.should-generate-ball-preview true)
                          
                          )
                        (when (and (= _G.shot.type "fly") (love.keyboard.isDown (. _G.control-map :down)))
                          (set _G.shot.spin-y (lume.clamp (- _G.shot.spin-y spin-speed) (- 1) 1))
                          
-                         (_G.generate-ball-preview)
-                         (_G.camera.to-preview-tail)
+                         ; (_G.generate-ball-preview)
+                         ; (_G.camera.to-preview-tail)
+                         (set _G.should-generate-ball-preview true)
 
                          )
                        (when (and (= _G.shot.type "fly") (love.keyboard.isDown (. _G.control-map :up)))
                          (set _G.shot.spin-y (lume.clamp (+ _G.shot.spin-y spin-speed) (- 1) 1))
                          
-                         (_G.generate-ball-preview)
-                         (_G.camera.to-preview-tail)
+                         ; (_G.generate-ball-preview)
+                         ; (_G.camera.to-preview-tail)
+                         (set _G.should-generate-ball-preview true)
 
                          ))
                      (do
@@ -82,16 +87,18 @@
                          (+= _G.shot.angle speed)
                          (%= _G.shot.angle (* 2 math.pi))
 
-                         (_G.generate-ball-preview)
-                         (_G.camera.to-preview-tail)
+                         ; (_G.generate-ball-preview)
+                         ; (_G.camera.to-preview-tail)
+                         (set _G.should-generate-ball-preview true)
                          
                          )
                        (when (love.keyboard.isDown (. _G.control-map :right))
                          (-= _G.shot.angle speed)
                          (%= _G.shot.angle (* 2 math.pi))
 
-                         (_G.generate-ball-preview)
-                         (_G.camera.to-preview-tail)
+                         ; (_G.generate-ball-preview)
+                         ; (_G.camera.to-preview-tail)
+                         (set _G.should-generate-ball-preview true)
 
                          )
                        (when (. _G.just-pressed (. _G.control-map :up))
@@ -172,8 +179,9 @@
               (set _G.shot.state "success"))
             (+= _G.shot-no 1))))
       (set _G.ball.position _G.ball.last-settled-at))
-  (_G.generate-ball-preview)
-  (_G.camera.to-preview-tail))
+  ; (_G.generate-ball-preview)
+  ; (_G.camera.to-preview-tail)
+  (set _G.should-generate-ball-preview true))
 
 (fn _G.shot.update [dt]
   (_G.shot.handle-controls dt)

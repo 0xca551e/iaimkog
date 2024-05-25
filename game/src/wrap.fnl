@@ -16,9 +16,9 @@
   (love.graphics.setDefaultFilter "nearest" "nearest")
   (love.graphics.setLineStyle "rough")
 
-  ;; start a thread listening on stdin
-  (: (love.thread.newThread "require('love.event')
-while 1 do love.event.push('stdin', io.read('*line')) end") :start)
+;   ;; start a thread listening on stdin
+;   (: (love.thread.newThread "require('love.event')
+; while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
   (set _G.just-pressed {})
 
@@ -30,11 +30,11 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
   (require :src.config)
 
-  (require :src.game.camera)
-  (require :src.game.physics)
-  (require :src.game.level)
-  (require :src.game.shot)
-  (require :src.game.ball-preview)
+  (require :src.camera)
+  (require :src.physics)
+  (require :src.level)
+  (require :src.shot)
+  (require :src.ball-preview)
 
   (require :src.scenes.title-screen)
   (require :src.scenes.playing-course)
@@ -42,7 +42,8 @@ while 1 do love.event.push('stdin', io.read('*line')) end") :start)
   (require :src.scenes.results-screen)
   
   (set _G.scene _G.title-screen-scene)
-  (_G.scene.load))
+  (_G.scene.load)
+  )
 
 (fn love.draw []
   (love.graphics.setCanvas _G.game-canvas)

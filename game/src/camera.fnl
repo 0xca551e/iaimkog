@@ -55,3 +55,5 @@
     (tset _G.camera.target :t next-t)
     (tset _G.camera :x next-x)
     (tset _G.camera :y next-y)))
+
+true

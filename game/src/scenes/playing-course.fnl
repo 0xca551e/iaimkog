@@ -39,14 +39,19 @@
 
   (set _G.shot.state "moving")
 
-  (_G.generate-ball-preview)
-  (_G.camera.to-preview-tail))
+  ; (_G.generate-ball-preview)
+  ; (_G.camera.to-preview-tail)
+  (set _G.should-generate-ball-preview true))
 
 (fn _G.playing-course-scene.unload []
   ; TODO: course data should hold what song to play
   (love.audio.stop _G.course-1-music))
 
 (fn _G.playing-course-scene.load []
+  (set _G.ball-preview-dt-acc 0)
+  (set _G.ball-preview [])
+  (set _G.last-generate-ball-request 0)
+
   (love.audio.play _G.course-1-music)
 
   (set _G.course-scores [])
@@ -72,6 +77,21 @@
 
 (fn _G.playing-course-scene.update [dt]
   (+= _G.dt-acc dt)
+  (+= _G.ball-preview-dt-acc dt)
+  (when (>= _G.ball-preview-dt-acc (/ 1 20))
+    (%= _G.ball-preview-dt-acc (/ 1 20))
+    (if _G.should-generate-ball-preview
+      (do
+        (set _G.last-generate-ball-request 0)
+        (_G.generate-ball-preview 0.25)
+        (_G.camera.to-preview-tail)
+        (set _G.should-generate-ball-preview false))
+      (do
+        (+= _G.last-generate-ball-request 1)
+        (when (= _G.last-generate-ball-request 10)
+          ; (print "ENHANCE")
+          (_G.generate-ball-preview 1.0)
+          (_G.camera.to-preview-tail)))))
   (var steps-left _G.max-steps-per-frame)
   (while (and (> _G.dt-acc _G.timestep) (not= steps-left 0))
     (-= _G.dt-acc dt)

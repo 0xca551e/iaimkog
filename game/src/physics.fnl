@@ -164,7 +164,7 @@
 (fn _G.physics.integrate-ball [ball dt]
   (set ball.velocity (-> ball.velocity
                          (_G.vector.scale (/ 1 (+ 1 (* dt _G.friction))))))
-  (+= ball.velocity.z (- _G.gravity))
+  (+= ball.velocity.z (- (* _G.gravity (* dt 60))))
   (set ball.velocity (-> ball.velocity
                          (vector.rotate-by-axis-angle {:x 0 :y 0 :z 1} (* ball.spin-x _G.max-angular-sidespin))))
   (when (and (not= ball.spin-y 0) ball.just-collided)
