@@ -6,6 +6,7 @@
       (when _G.requested-fast-preview
         (set _G.requested-fast-preview false)
         (set _G.ball-preview [])
+        (set _G.ball-shadow-preview [])
         (var preview-ball {:position _G.ball.position
                           :velocity (_G.shot.velocity-vector _G.shot.type _G.shot.angle 1)
                           :radius _G.ball.radius
@@ -32,6 +33,7 @@
       (when _G.requested-full-preview
         (set _G.requested-full-preview false)
         (set _G.ball-preview [])
+        (set _G.ball-shadow-preview [])
         (var preview-ball {:position _G.ball.position
                           :velocity (_G.shot.velocity-vector _G.shot.type _G.shot.angle 1)
                           :radius _G.ball.radius
@@ -46,8 +48,11 @@
           (when (< preview-ball.position.z -1)
             (lua :break))
           (let [{:x x :y y :z z} preview-ball.position
-                [ix iy] (_G.geometry.to-isometric x y z)]
-            (_G.util.concat-mut _G.ball-preview [(+ ix) (+ iy _G.ball.draw-offset.y 16)])))
+                tile-z (?. _G.height-map (.. (math.floor x) "," (math.floor y)))
+                [ix iy] (_G.geometry.to-isometric x y z)
+                [isx isy] (_G.geometry.to-isometric x y (+ 1 0.25 (or tile-z 0)))]
+            (_G.util.concat-mut _G.ball-preview [(+ ix) (+ iy _G.ball.draw-offset.y 16)])
+            (_G.util.concat-mut _G.ball-shadow-preview [(+ isx) (+ isy _G.ball.draw-offset.y 16)])))
         (_G.camera.to-preview-tail))
       (coroutine.yield)))))
 (comment

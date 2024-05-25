@@ -5,7 +5,9 @@
 (fn _G.level.make-tile [variant x y z]
   (table.insert _G.drawables {:variant variant :position {:x x :y y :z z} :draw-offset {:x 0 :y 0 :z 0}})
   (let [[tris edges verts] (. _G.tile-hitboxes variant)]
-    (_G.util.concat-mut _G.tris (_G.geometry.translate-tris-and-add-aabb tris {:x x :y y :z z}))))
+    (_G.util.concat-mut _G.tris (_G.geometry.translate-tris-and-add-aabb tris {:x x :y y :z z}))
+    (when (> z (or (?. _G :height-map (.. x "," y)) -1))
+      (tset _G :height-map (.. x "," y) z))))
 
 (fn _G.level.draw []
   ;; NOTE: the ball will move around affecting z index

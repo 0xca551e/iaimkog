@@ -14,6 +14,7 @@
   (set _G.par 3)
 
   (set _G.tris [])
+  (set _G.height-map [])
   (set _G.level-hole _G.vector.zero)
   (set _G.ball {:position _G.vector.zero
                 :radius 0.25
@@ -51,6 +52,7 @@
 (fn _G.playing-course-scene.load []
   (set _G.ball-preview-dt-acc 0)
   (set _G.ball-preview [])
+  (set _G.ball-shadow-preview [])
   (set _G.last-generate-ball-request 0)
 
   (if _G.is-level-2
@@ -134,7 +136,13 @@
                      (% 10)
                      (math.floor)
                      (* 2))
-          dashed-lines (_G.util.segments _G.ball-preview 10 10 offset)]
+          dashed-lines (_G.util.segments _G.ball-preview 10 10 offset)
+          dashed-shadow-lines (_G.util.segments _G.ball-shadow-preview 10 10 offset)]
+      (love.graphics.setColor 0 0 0 1)
+      (each [_ v (ipairs dashed-shadow-lines)]
+        (when (>= (# v) 4)
+          (love.graphics.line (unpack v))))
+      (love.graphics.setColor 1 1 1 1)
       (each [_ v (ipairs dashed-lines)]
         (when (>= (# v) 4)
           (love.graphics.line (unpack v))))))
