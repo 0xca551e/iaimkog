@@ -11,9 +11,11 @@
 (fn _G.not-playing-scene.draw []
   (love.graphics.draw _G.angy 94 64)
   (when (>= _G.angy-timer 2)
-    (love.graphics.print "Fine." 110 60)))
+    (love.graphics.print "Fine." 110 60))
+  (when (>= _G.angy-timer 5)
+    (love.graphics.clear)))
 
 (fn _G.not-playing-scene.update [dt]
   (+= _G.angy-timer dt)
-  (when (>= _G.angy-timer 5)
+  (when (>= _G.angy-timer 6)
     (love.event.quit)))
