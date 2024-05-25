@@ -2,7 +2,7 @@
 
 (set _G.shot {})
 
-(set _G.shot.angle 0) ; in radians
+(set _G.shot.angle (/ math.pi 2)) ; in radians
 (set _G.shot.spin-x 0) ; -1 to 1
 (set _G.shot.spin-y 0) ; -1 to 1
 (set _G.shot.type "roll") ; roll, roll2, fly
@@ -155,7 +155,7 @@
   (set _G.ball.just-collided false)
   (set _G.ball.velocity _G.vector.zero)
 
-  (set _G.shot.angle 0)
+  ; (set _G.shot.angle 0)
   (set _G.shot.spin-x 0)
   (set _G.shot.spin-y 0)
   (set _G.shot.type "roll")
