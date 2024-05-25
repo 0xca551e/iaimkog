@@ -31,7 +31,12 @@
                                     (+ 1))
                   current-quad (. animation-quads current-frame)]
               (love.graphics.draw _G.sprite-sheet current-quad x2 y2)))
-          (love.graphics.draw _G.sprite-sheet (. _G.sprite-quads v.variant) x2 y2)))))
+          (do
+            (when _G.is-level-2
+              (love.graphics.setShader _G.grayscale-shader)
+              (_G.grayscale-shader:send "intensity" 1.0))
+            (love.graphics.draw _G.sprite-sheet (. _G.sprite-quads v.variant) x2 y2)))
+        (love.graphics.setShader))))
 
 (fn _G.trim-whitespace [str] (str:gsub "^%s*(.-)%s*$" "%1"))
 (comment

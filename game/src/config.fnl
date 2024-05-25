@@ -51,7 +51,7 @@
 (_G.course-1-music:setVolume 0.5)
 (set _G.course-2-music (love.audio.newSource "sound/barriers.ogg" "stream"))
 (_G.course-2-music:setLooping true)
-(_G.course-2-music:setVolume 0.5)
+(_G.course-2-music:setVolume 0.4)
 (set _G.not-playing-music (love.audio.newSource "sound/29938__halleck__record_scratch_short.wav" "static"))
 (_G.not-playing-music:setVolume 0.3)
 
@@ -366,3 +366,12 @@
     "yz{|}~"))
 )
 (love.graphics.setFont _G.font)
+
+(set _G.grayscale-shader (love.graphics.newShader "
+    extern number intensity;
+    vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
+        vec4 pixel = Texel(texture, texture_coords);
+        number gray = dot(pixel.rgb, vec3(0.299, 0.587, 0.114));
+        return vec4(vec3(gray * intensity), pixel.a);
+    }
+"))

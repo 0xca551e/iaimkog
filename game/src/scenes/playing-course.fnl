@@ -45,14 +45,17 @@
 
 (fn _G.playing-course-scene.unload []
   ; TODO: course data should hold what song to play
-  (love.audio.stop _G.course-1-music))
+  (love.audio.stop _G.course-1-music)
+  (love.audio.stop _G.course-2-music))
 
 (fn _G.playing-course-scene.load []
   (set _G.ball-preview-dt-acc 0)
   (set _G.ball-preview [])
   (set _G.last-generate-ball-request 0)
 
-  (love.audio.play _G.course-1-music)
+  (if _G.is-level-2
+    (love.audio.play _G.course-2-music)
+    (love.audio.play _G.course-1-music))
 
   (set _G.course-scores [])
   (set _G.course-holes ["levels/1-1.txt" "levels/updown-level.txt"])
@@ -113,11 +116,14 @@
       (set _G.ball.just-collided-sound false)))
 
 (fn _G.playing-course-scene.draw []
-  (love.graphics.draw _G.bg1)
+  (if _G.is-level-2
+    (love.graphics.draw _G.bg2)
+    (love.graphics.draw _G.bg1))
+  
 
   (love.graphics.translate _G.camera.x _G.camera.y)
-
   (_G.level.draw)
+  (love.graphics.setShader)
 
   (love.graphics.setColor 1 1 1 1)
   (when (and (not= _G.shot.state "moving")

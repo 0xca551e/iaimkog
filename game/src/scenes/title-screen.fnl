@@ -85,6 +85,7 @@
       (when (. _G.just-pressed _G.control-map.primary)
         (love.audio.stop _G.menu-confirm-sound)
         (love.audio.play _G.menu-confirm-sound)
+        (set _G.is-level-2 (= _G.state.course-selected 2))
         (set _G.next-scene _G.playing-course-scene))
       (when (. _G.just-pressed _G.control-map.secondary)
         (love.audio.stop _G.menu-decline-sound)

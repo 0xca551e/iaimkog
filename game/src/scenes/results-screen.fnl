@@ -9,8 +9,9 @@
   (love.audio.play _G.title-screen-music))
 
 (fn _G.result-screen-scene.draw []
-  ; TODO: the course will hold the bg
-  (love.graphics.draw _G.bg1)
+  (if _G.is-level-2
+    (love.graphics.draw _G.bg2)
+    (love.graphics.draw _G.bg1))
   (love.graphics.setColor 0 0 0 0.2)
   (love.graphics.rectangle "fill" 0 0 240 160)
   (love.graphics.setColor 1 1 1 1)
