@@ -2,7 +2,7 @@
   "name": "iaimkog",
   "private": true,
   "scripts": {
-    "build": "love.js ./game ./js-build -t iaimkog -m 67108860 && cp ./serve.json ./js-build && cd js-build && zip -r archive.zip *",
+    "build": "love.js ./game ./js-build -t \"It's an isometric minigolf kind of game!\" -m 67108860 && cp ./serve.json ./js-build && cd js-build && zip -r archive.zip *",
     "serve": "npx serve ./js-build"
   },
   "devDependencies": {
