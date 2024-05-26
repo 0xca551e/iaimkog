@@ -178,7 +178,9 @@
               (set _G.shot-success-timer 8)
               (set _G.shot.state "success"))
             (+= _G.shot-no 1))))
-      (set _G.ball.position _G.ball.last-settled-at))
+      (do
+        (+= _G.shot-no 1)
+        (set _G.ball.position _G.ball.last-settled-at)))
   ; (_G.generate-ball-preview)
   ; (_G.camera.to-preview-tail)
   (set _G.should-generate-ball-preview true))
