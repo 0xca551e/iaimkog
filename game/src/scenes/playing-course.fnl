@@ -144,13 +144,14 @@
 
   (love.graphics.translate _G.camera.x _G.camera.y)
   (_G.level.draw)
-  (let [{:x x :y y :z z} _G.ball.position
-        {:x x2 :y y2 :z z2} (-> {:x 1 :y 0 :z 0} (_G.vector.rotate-by-axis-angle {:x 0 :y 0 :z 1} _G.shot.angle) (_G.vector.add _G.ball.position))
-        [ix iy] (_G.geometry.to-isometric x y z)
-        [ix2 iy2] (_G.geometry.to-isometric x2 y2 z2)]
-    (love.graphics.setColor (unpack (. _G.color-map :golden-fizz)))
-    (love.graphics.line ix (+ 16 iy) ix2 (+ 16 iy2))
-    (love.graphics.setColor 1 1 1 1))
+  (when (= _G.shot.state "aiming")
+    (let [{:x x :y y :z z} _G.ball.position
+          {:x x2 :y y2 :z z2} (-> {:x 1 :y 0 :z 0} (_G.vector.rotate-by-axis-angle {:x 0 :y 0 :z 1} _G.shot.angle) (_G.vector.add _G.ball.position))
+          [ix iy] (_G.geometry.to-isometric x y z)
+          [ix2 iy2] (_G.geometry.to-isometric x2 y2 z2)]
+      (love.graphics.setColor (unpack (. _G.color-map :golden-fizz)))
+      (love.graphics.line ix (+ 16 iy) ix2 (+ 16 iy2))
+      (love.graphics.setColor 1 1 1 1)))
   (love.graphics.setShader)
 
   (love.graphics.setColor 1 1 1 1)
