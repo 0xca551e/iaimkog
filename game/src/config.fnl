@@ -28,6 +28,8 @@
 (set _G.bg1 (love.graphics.newImage "sprites/bg1.png"))
 (set _G.bg2 (love.graphics.newImage "sprites/bg2.png"))
 (set _G.title-screen-logo (love.graphics.newImage "sprites/titlescreen-logo.png"))
+(set _G.title-screen-logo2 (love.graphics.newImage "sprites/titlescreen-logo2.png"))
+(set _G.logo-frame-duration 0.48)
 (set _G.angy (love.graphics.newImage "sprites/angy.png"))
 
 (set _G.menu-hover-sound (love.audio.newSource "sound/10_ui_sfx_free_samples/001_Hover_01.wav" "static"))

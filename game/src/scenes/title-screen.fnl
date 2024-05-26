@@ -29,7 +29,9 @@
 
 (fn _G.title-screen-scene.draw []
   (love.graphics.draw _G.bg1)
-  (love.graphics.draw _G.title-screen-logo)
+  (if (< (% (love.timer.getTime) (* 2 _G.logo-frame-duration)) _G.logo-frame-duration)
+    (love.graphics.draw _G.title-screen-logo)
+    (love.graphics.draw _G.title-screen-logo2))
 
   (if _G.state.selecting-course
     (do
