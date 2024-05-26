@@ -17,8 +17,8 @@
   (love.graphics.setLineStyle "rough")
 
   ;; start a thread listening on stdin
-  (: (love.thread.newThread "require('love.event')
-while 1 do love.event.push('stdin', io.read('*line')) end") :start)
+;   (: (love.thread.newThread "require('love.event')
+; while 1 do love.event.push('stdin', io.read('*line')) end") :start)
 
   (set _G.just-pressed {})
 

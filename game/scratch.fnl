@@ -36,13 +36,21 @@
   (tset _G.ball :last-settled-at _G.ball.position)
   (set _G.drawables [_G.ball])
 
-  (_G.level.read-file-lines "levels/u-shaped.txt")
+  ;; (_G.level.read-file-lines "levels/u-shaped.txt")
+  ;; (_G.level.read-file-lines "levels/behind-the-wall.txt)"
+  ;; (_G.level.read-file-lines "levels/carved-hill.txt")
+  ;; (_G.level.read-file-lines "levels/spiral-down.txt")
+  ;; (_G.level.read-file-lines "levels/up-two-stairs.txt")
+  ;; (_G.level.read-file-lines "levels/curve-up-the-stairs.txt")
+  ;; (_G.level.read-file-lines "levels/neo-tower.txt")
+  ;; (_G.level.read-file-lines "levels/pachinko.txt")
+  (_G.level.read-file-lines "levels/halfpipe-with-hole.txt")
   ;; NOTE: the level is static, so we don't need to sort every frame.
   ;; in a later version this might change
   (_G.util.insertion-sort-by-mut _G.tris (fn [a b]
-                                (let [[tri-a aabb-a] a
-                                      [tri-b aabb-b] b]
-                                  (- aabb-a.min.x aabb-b.min.x))))
+                                           (let [[tri-a aabb-a] a
+                                                 [tri-b aabb-b] b]
+                                             (- aabb-a.min.x aabb-b.min.x))))
 
   (set _G.shot.state "moving")
 

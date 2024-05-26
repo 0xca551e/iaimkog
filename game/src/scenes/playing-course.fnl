@@ -11,7 +11,7 @@
 (fn _G.playing-course-scene.set-hole [n]
   (set _G.current-hole n)
   (set _G.shot-no 0)
-  (set _G.par 3)
+  (set _G.par (. _G.course-hole-pars n))
 
   (set _G.tris [])
   (set _G.height-map [])
@@ -60,8 +60,32 @@
     (love.audio.play _G.course-1-music))
 
   (set _G.course-scores [])
-  (set _G.course-holes ["levels/1-1.txt" "levels/updown-level.txt"])
-  (set _G.course-hole-pars [3 3])
+  (if _G.is-level-2
+    (do
+      (set _G.course-holes [
+        "levels/up-two-stairs.txt" ;
+        "levels/halfpipe-with-hole.txt"
+        "levels/spiral-down.txt" ; move to early trickshot city
+        "levels/fly-shot-example.txt"
+        "levels/jump-double-rebound.txt" ; move to trickshot city as an early level, par 4?
+        "levels/donut-hard.txt"
+        "levels/neo.txt" ; move to trickshot city, early-mid
+        "levels/neo-tower.txt"
+        ])
+      (set _G.course-hole-pars [3 3 3 3 3 3 3 3]))
+    (do 
+      (set _G.course-holes [
+        "levels/1-1.txt" ; super duper easy, par 3
+        "levels/line-it-up.txt" ; should be very early level near 1-1. also, move the hole 1 unit closer to make it HIO viable
+        "levels/updown-level.txt" ; easy ho1, par 3
+        "levels/basic-rebound.txt" ; keep, put in the middle
+        "levels/u-shaped.txt" ; par 3
+        "levels/carved-hill.txt" ; good, after behind the wall
+        "levels/behind-the-wall.txt" ; the later but
+        "levels/easy-islands.txt" ; TODO: make this level
+        "levels/pachinko.txt" ; last level
+        ])
+      (set _G.course-hole-pars [3 3 3 3 3 3 3 3 3])))
 
   (set _G.dt-acc 0)
   (set _G.timestep (/ 1 60))
@@ -70,15 +94,15 @@
   
   (_G.playing-course-scene.set-hole 1))
 
-; (fn _G.manual-control-ball [dt]
-;   (let [d (* 5 dt)
-;         control _G.ball.velocity]
-;     (when (love.keyboard.isDown "w") (-= control.x d) (-= control.y d))
-;     (when (love.keyboard.isDown "a") (-= control.x d) (+= control.y d))
-;     (when (love.keyboard.isDown "s") (+= control.x d) (+= control.y d))
-;     (when (love.keyboard.isDown "d") (+= control.x d) (-= control.y d))
-;     (when (love.keyboard.isDown "space") (+= control.z d))
-;     (when (love.keyboard.isDown "lshift") (-= control.z d))))
+(fn _G.manual-control-ball [dt]
+  (let [d (* 5 dt)
+        control _G.ball.velocity]
+    (when (love.keyboard.isDown "w") (-= control.x d) (-= control.y d))
+    (when (love.keyboard.isDown "a") (-= control.x d) (+= control.y d))
+    (when (love.keyboard.isDown "s") (+= control.x d) (+= control.y d))
+    (when (love.keyboard.isDown "d") (+= control.x d) (-= control.y d))
+    (when (love.keyboard.isDown "space") (+= control.z d))
+    (when (love.keyboard.isDown "lshift") (-= control.z d))))
 
 (fn _G.playing-course-scene.update [dt]
   (+= _G.dt-acc dt)
@@ -107,7 +131,7 @@
     (-= steps-left 1)
     (when (not _G.paused)
       ;; (_G.integrate-ball dt)
-      ; (_G.manual-control-ball _G.timestep)
+      (_G.manual-control-ball _G.timestep)
       (_G.shot.update _G.timestep))
     (when _G.ball.just-collided-sound
       (local bounce-sound (_G.bounce-sound:clone))
