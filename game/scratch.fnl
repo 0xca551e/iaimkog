@@ -44,7 +44,10 @@
   ;; (_G.level.read-file-lines "levels/curve-up-the-stairs.txt")
   ;; (_G.level.read-file-lines "levels/neo-tower.txt")
   ;; (_G.level.read-file-lines "levels/pachinko.txt")
-  (_G.level.read-file-lines "levels/halfpipe-with-hole.txt")
+  ;; (_G.level.read-file-lines "levels/halfpipe-with-hole.txt")
+  ;; (_G.level.read-file-lines "levels/tightrope.txt")
+  ;; (_G.level.read-file-lines "levels/islands-hard.txt")
+  (_G.level.read-file-lines "levels/islands-easy.txt")
   ;; NOTE: the level is static, so we don't need to sort every frame.
   ;; in a later version this might change
   (_G.util.insertion-sort-by-mut _G.tris (fn [a b]

@@ -1,6 +1,11 @@
 (set _G.vector {})
 
-(set _G.vector.zero {:x 0 :y 0 :z 0})
+(set _G.vector.--zero {:x 0 :y 0 :z 0})
+(set _G.vector.zero {})
+(setmetatable _G.vector.zero
+              {:__index _G.vector.--zero
+               :__newindex (fn [table key value]
+                             (error "Attempt to modify frozen table"))})
 
 (fn _G.vector.string [v]
   (.. (tostring v.x) ", " (tostring v.y) ", " (tostring v.z)))

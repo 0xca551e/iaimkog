@@ -22,7 +22,7 @@
   (each [i v (ipairs _G.course-scores)]
     (love.graphics.print i (+ 70 (* (- i 1) 18)) 40)
     (love.graphics.print (.. (tostring v)) (+ 70 (* (- i 1) 18)) 80))
-  (each [i v (ipairs _G.course-hole-pars)]
+  (each [i [_ v] (ipairs _G.course-holes)]
     (love.graphics.print (.. (tostring v)) (+ 70 (* (- i 1) 18)) 60))
   (love.graphics.printf (.. "Final score: " (tostring (lume.reduce _G.course-scores (fn [acc x] (+ acc x)) 0))) 0 110 240 "center")
   (love.graphics.printf "Press [X] to continue" 0 140 240 "center"))

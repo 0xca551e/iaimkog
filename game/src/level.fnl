@@ -67,7 +67,7 @@
               (tset _G.ball :last-settled-at next-pos)))
           (when tile
             (when (= tile :hole)
-              (set _G.level-hole {:x (- (tonumber x)) :y (tonumber y) :z (tonumber z)}))
+              (set _G.level-hole {:x (- (tonumber x)) :y (tonumber y) :z (* (tonumber z) _G.block-height)}))
             (_G.level.make-tile tile (- (tonumber x)) (tonumber y) (* (tonumber z) _G.block-height))))))))
 (comment
  (_G.level.read-file-lines "levels/test-level.txt"))
