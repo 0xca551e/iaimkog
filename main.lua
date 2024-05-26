@@ -1,14 +1,13 @@
-fennel = require("lib.fennel")
-debug.traceback = fennel.traceback
+fennel = require("lib.fennel").install({correlate=true,
+                                              moduleName="lib.fennel"})
 
-table.insert(package.loaders, fennel.make_searcher({correlate=true}))
-pp = function(x) print(fennel.view(x)) end
 local make_love_searcher = function(env)
-   return function(path)
+   return function(module_name)
+      local path = module_name:gsub("%.", "/") .. ".fnl"
       if love.filesystem.getInfo(path) then
          return function(...)
             local code = love.filesystem.read(path)
-            return fennel.eval(code, {env=env, filename=path}, ...)
+            return fennel.eval(code, {env=env}, ...)
          end, path
       end
    end

@@ -54,7 +54,7 @@
    a test   "))
 
 (fn _G.level.read-file-lines [filename]
-  (each [line (io.lines filename)]
+  (each [line (love.filesystem.lines filename)]
     (let [formatted-line (_G.trim-whitespace line)]
       (when (and (not= formatted-line "")
                  (not= (string.sub formatted-line 1 1) "#"))
