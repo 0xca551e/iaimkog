@@ -1,8 +1,12 @@
 name = "IAIMKOG"
-default_targets = ["win32", "win64", "appimage", "macos"]
+default_targets = ["win32", "win64", "appimage", "macos", "lovejs"]
 build_directory = "makelove-build"
 
 love_files = [
     "::git-ls-tree::",
     "-*/.*",
 ]
+
+[lovejs]
+title = "It's an isometric minigolf kind of game!"
+memory = "67108860"
